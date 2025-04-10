@@ -1,0 +1,94 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 224 71% 4%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    
+    --primary: 213 94% 50%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 181 89% 36%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+    
+    --accent: 213 94% 95%;
+    --accent-foreground: 213 94% 30%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 213 94% 50%;
+    
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
+    
+    --card: 224 71% 4%;
+    --card-foreground: 210 20% 98%;
+    
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 20% 98%;
+    
+    --primary: 213 94% 50%;
+    --primary-foreground: 210 20% 98%;
+    
+    --secondary: 181 89% 36%;
+    --secondary-foreground: 210 20% 98%;
+    
+    --muted: 215 27% 16%;
+    --muted-foreground: 217 10% 64%;
+    
+    --accent: 217 19% 24%;
+    --accent-foreground: 210 20% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    
+    --border: 215 27% 16%;
+    --input: 215 27% 16%;
+    --ring: 213 94% 50%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.1) 0%, rgba(10, 186, 181, 0.1) 100%);
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #1a73e8 0%, #0abab5 100%);
+}
