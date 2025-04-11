@@ -1,37 +1,67 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Calendar, MessageSquare } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAppointmentsForDoctor } from "../api";
+import { getAppointmentsForDoctor, getAppointmentsForPatient } from "../api";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  // const [doctorId, setDoctorId] = useState(null);
-  const doctorvalId = localStorage.getItem("telemed-doctor"); // Get doctorId from localStorage
-  const doctorId = doctorvalId ? JSON.parse(doctorvalId)._id : null; // Parse and extract the ID
   const [appointmentsCount, setAppointmentsCount] = useState(0);
-
-  useEffect(() => {
-    // Check for presence of patient or doctor in localStorage
-    const patient = localStorage.getItem('telemed-patient');
-    const doctor = localStorage.getItem('telemed-doctor');
-    setLoggedIn(!!patient || !!doctor);  // Set loggedIn to true if either is found
-    console.log('Doctor ID:', doctorId); // Log doctorId
-    if (doctorId) {
-      getAppointmentsForDoctor(doctorId)
-        .then((data) => {
-          console.log('Appointments Data:', data); // Log the response data
-          setAppointmentsCount(data.count); // Set the number of appointments
-        })
-        .catch((error) => {
-          console.error('Error fetching appointments:', error.message);
-        });
-    }
-  }, [doctorId]);
+  const [isDoctor, setIsDoctor] = useState(false);
+  const [isPatient, setIsPatient] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  useEffect(() => {
+    const patientData = localStorage.getItem("telemed-patient");
+    const doctorData = localStorage.getItem("telemed-doctor");
+
+    const patientId = patientData ? JSON.parse(patientData)._id : null;
+    const doctorId = doctorData ? JSON.parse(doctorData)._id : null;
+
+    setIsPatient(!!patientData);
+    setIsDoctor(!!doctorData);
+    setLoggedIn(!!patientData || !!doctorData);
+
+    if (doctorId) {
+      getAppointmentsForDoctor(doctorId)
+        .then((data) => setAppointmentsCount(data.count))
+        .catch((error) =>
+          console.error("Error fetching doctor appointments:", error.message)
+        );
+    } else if (patientId) {
+      getAppointmentsForPatient(patientId)
+        .then((data) => setAppointmentsCount(data.count))
+        .catch((error) =>
+          console.error("Error fetching patient appointments:", error.message)
+        );
+    }
+  }, []);
+
+  const renderAppointmentsLink = () => {
+    if (isDoctor && appointmentsCount > 0) {
+      return (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+          asChild
+        >
+          <Link to="/appointmentspage">
+            <div className="flex items-center space-x-2 text-gray-700">
+              <span>Appointments</span>
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {appointmentsCount}
+              </span>
+            </div>
+          </Link>
+        </Button>
+      );
+    }
+    return null;
   };
 
   return (
@@ -49,37 +79,16 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-            <Link
-              to="/"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
-            >
-              Home
-            </Link>
-            <Link
-              to="/services"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
-            >
-              Services
-            </Link>
-            <Link
-              to="/doctors"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
-            >
-              Doctors
-            </Link>
-            <Link
-              to="/about"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
-            >
-              Contact
-            </Link>
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            {["Home", "Services", "Doctors", "About", "Contact"].map((item) => (
+              <Link
+                key={item}
+                to={`/${item.toLowerCase()}`}
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-medblue"
+              >
+                {item}
+              </Link>
+            ))}
           </div>
 
           <div className="flex items-center">
@@ -89,38 +98,28 @@ const Navbar = () => {
                   <button className="flex items-center space-x-2 hover:text-medblue">
                     <User className="h-6 w-6 text-medteal" />
                   </button>
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Settings
                     </Link>
+                    {renderAppointmentsLink()}
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                       asChild
                     >
-                      <Link to="/appointmentspage">
-                        <span>Appointments ({appointmentsCount})</span>
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      asChild
-                    >
-                      <Link to="/messages">
-                        <span>Messages</span>
-                      </Link>
+                      <Link to="/notification">Notification</Link>
                     </Button>
                     <button
                       onClick={() => {
                         localStorage.removeItem("telemed-patient");
                         localStorage.removeItem("telemed-doctor");
-                        setLoggedIn(false); // Update the state when logging out
+                        setLoggedIn(false);
+                        alert("Logout Successfully")
                         window.location.reload();
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -162,80 +161,74 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link
-              to="/"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
-            >
-              Home
-            </Link>
-            <Link
-              to="/services"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
-            >
-              Services
-            </Link>
-            <Link
-              to="/doctors"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
-            >
-              Doctors
-            </Link>
-            <Link
-              to="/about"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
-            >
-              Contact
-            </Link>
+            {["Home", "Services", "Doctors", "About", "Contact"].map((item) => (
+              <Link
+                key={item}
+                to={`/${item.toLowerCase()}`}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-medblue"
+              >
+                {item}
+              </Link>
+            ))}
 
-            {loggedIn ? (
+            {loggedIn && (
               <>
-                <div className="relative group">
-                  <Link className="flex items-center space-x-2 hover:text-medblue px-3 py-2 rounded-md text-base font-medium text-gray-700">
-                    <span>Account</span>
-                  </Link>
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Settings
-                    </Link>
-                    <button
-                      onClick={() => {
-                        localStorage.removeItem("telemed-patient");
-                        localStorage.removeItem("telemed-doctor");
-                        setLoggedIn(false);  // Update state after logout
-                        window.location.reload();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col space-y-2 px-3 py-2">
-                <Button variant="outline" asChild>
-                  <Link to="/login">Log in</Link>
-                </Button>
-                <Button
-                  className="bg-medblue hover:bg-medblue-dark text-white"
-                  asChild
+                <Link
+                  to="/profile"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
                 >
-                  <Link to="/signup">Sign up</Link>
-                </Button>
-              </div>
+                  Settings
+                </Link>
+                {isDoctor && appointmentsCount > 0 && (
+                  <Link
+                    to="/appointmentspage"
+                    className="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100 flex items-center"
+                  >
+                    <span>Appointments</span>
+                    <span className="ml-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {appointmentsCount}
+                    </span>
+                  </Link>
+                )}
+                <Link
+                  to="/notification"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  Notification
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("telemed-patient");
+                    localStorage.removeItem("telemed-doctor");
+                    setLoggedIn(false);
+                    window.location.reload();
+                  }}
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+
+            {!loggedIn && (
+              <>
+                <Link
+                  to="/login"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-white bg-medblue hover:bg-medblue-dark"
+                >
+                  Sign up
+                </Link>
+              </>
             )}
           </div>
         </div>

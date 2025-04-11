@@ -6,11 +6,11 @@ const openai = new OpenAI({
 });
 
 const doctorMapping = {
-  "skin": "Dr. Mehta (Dermatologist)",
-  "fever": "Dr. Singh (General Physician)",
-  "throat": "Dr. Sharma (ENT Specialist)",
-  "depression": "Dr. Rao (Psychiatrist)",
-  "chest": "Dr. Banerjee (Cardiologist)"
+  "skin": "Dr. Mehta ",
+  "fever": "Dr. Singh ",
+  "throat": "Dr. Sharma ",
+  "depression": "Dr. Rao ",
+  "chest": "Dr. Banerjee "
 };
 
 exports.chatWithBot = async (req, res) => {
@@ -29,7 +29,7 @@ exports.chatWithBot = async (req, res) => {
 
     const botReply = response.choices[0].message.content;
 
-    let suggestedDoctor = "Dr. Singh (General Physician)";
+    let suggestedDoctor = "Dr. Singh ";
     for (const keyword in doctorMapping) {
       if (message.toLowerCase().includes(keyword)) {
         suggestedDoctor = doctorMapping[keyword];

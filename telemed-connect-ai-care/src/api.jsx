@@ -94,3 +94,66 @@ export const getAppointmentsForDoctor = async (doctorId) => {
     throw error.response?.data || { message: error.message || 'Unknown error' };
   }
 }
+
+export const updateStatusAppointment = async (appointmentId, status) => {
+  try {
+    const response = await axios.put(`${API_URL}/update-status/${appointmentId}`, { status });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to update appointment status');
+  }
+};
+
+
+export const getAppointmentsForPatient = async (patientId) => {
+  try {
+    const response = await axios.get(`${API_URL}/patient/${patientId}`);
+    return response.data; // This will be an array of appointments
+  } catch (error) {
+    console.error("Error fetching patient appointments:", error);
+    throw error;
+  }
+};
+
+
+
+export const submitContactForm = async (formData) => {
+  try {
+    const res = await fetch(`${API_URL}/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to submit contact form");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Contact API Error:", error);
+    throw error;
+  }
+};
+// src/api.jsx or src/api/index.js
+export const fetchAllContacts = async () => {
+  try {
+    const res = await fetch(`${API_URL}/getcontacts`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch contacts");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+    throw error;
+  }
+};

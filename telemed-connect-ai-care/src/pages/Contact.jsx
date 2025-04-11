@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Phone, Mail, MapPin, Clock, Users, MousePointerClick, Check } from 'lucide-react';
+import { submitContactForm } from "../api"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -34,31 +35,33 @@ const Contact = () => {
     setFormData(prev => ({ ...prev, inquiry: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form submitted:', formData);
-      setIsLoading(false);
+  
+    try {
+      await submitContactForm(formData);
       setIsSubmitted(true);
-      
-      // Reset form after 5 seconds
+      setIsLoading(false);
+  
+      // Reset after 5s
       setTimeout(() => {
         setIsSubmitted(false);
         setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: '',
-          inquiry: 'general',
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+          inquiry: "general",
         });
       }, 5000);
-    }, 1500);
+    } catch (error) {
+      setIsLoading(false);
+      alert("Something went wrong. Please try again later.");
+    }
   };
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar loggedIn={false} />

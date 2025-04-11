@@ -55,7 +55,7 @@ const ServiceCard = ({ title, description, icon, price, popular }) => {
           <span className="text-sm text-muted-foreground">per consultation</span>
         </div>
         <Button className="w-full bg-medblue hover:bg-medblue-dark" asChild>
-          <Link to="/signup">Get Started</Link>
+          <Link to="/appointment">Get Started</Link>
         </Button>
       </CardFooter>
     </Card>
@@ -68,7 +68,7 @@ const Services = () => {
       title: 'Video Consultation',
       description: 'Connect face-to-face with doctors from anywhere',
       icon: Video,
-      price: 49,
+      price: "Free",
       popular: true
     },
     {
@@ -260,3 +260,9 @@ const Services = () => {
 };
 
 export default Services;
+// when i click Get Started in Video Consaltation as patient then a form open that you have to your name email mobile number ,doctor list(what ever doctor present in the backend) showing a dropdown format the patient select and appoint and waiting for the approval . that doctor got and Appointmnet then he or she aprove it after aproval a message go to patient and patient ask for time doctor put the time and then at that time 
+
+// paitent video call the doctor the doctor recive and solve the patients disease
+
+
+// i give you all the apis if this help you cause  many apis are already ready and if not please give me the comple code 

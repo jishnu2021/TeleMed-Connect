@@ -41,11 +41,23 @@ exports.getAllAppointments = async (req, res) => {
 };
 
 // (Optional) Get appointments for a specific patient
+// exports.getAppointmentsForPatient = async (req, res) => {
+//   try {
+//     const patientId = req.params.patientId;
+
+//     const appointments = await Appointment.find({ patientId }).populate('doctorId', 'name email');
+//     res.status(200).json(appointments);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Fetching failed', error: error.message });
+//   }
+// };
 exports.getAppointmentsForPatient = async (req, res) => {
   try {
     const patientId = req.params.patientId;
 
-    const appointments = await Appointment.find({ patientId }).populate('doctorId', 'name email');
+    const appointments = await Appointment.find({ patientId })
+      .populate('doctorId', 'name email'); // 👈 This should give you doctor name + email
+
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ message: 'Fetching failed', error: error.message });
@@ -78,3 +90,28 @@ exports.updateAppointmentStatus = async (req, res) => {
     }
   };
   
+// adjust path as per your structure
+
+exports.CheckUpdation = async (req, res) => {
+  try {
+    const appointmentId = req.params.appointmentId; // IMPORTANT: from req.params
+
+    if (!appointmentId) {
+      return res.status(400).json({ message: "Appointment ID is required" });
+    }
+
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    return res.status(200).json({
+      message: "Status fetched successfully",
+      status: appointment.status
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Checking failed", error: error.message });
+  }
+};
