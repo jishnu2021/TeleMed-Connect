@@ -53,3 +53,40 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Login failed", error: error.message });
   }
 };
+
+// Update user details
+exports.updateUserDetails = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.password = password ? await bcrypt.hash(password, 10) : user.password;
+
+    // Update only for doctors
+    if (user.role === 1) {
+      user.specialist = specialist || user.specialist;
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: 'User details updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user details', error: error.message });
+  }
+};
+
+// Get User Details
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

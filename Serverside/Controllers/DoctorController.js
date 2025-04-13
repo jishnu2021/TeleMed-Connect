@@ -71,3 +71,66 @@ exports.getAllDoctorsSpeciality = async (req, res) => {
     res.status(500).json({ message: 'Fetching doctors failed', error: error.message });
   }
 };
+
+exports.updateDoctorProfile = async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    // If password fields are included, validate and update the password
+    if (oldPassword && newPassword && confirmPassword) {
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'New password and confirm password do not match' });
+      }
+
+      // Find the doctor by ID
+      const doctor = await User.findById(req.params.docId);
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+
+      // Compare the provided old password with the stored hashed password
+      const isMatch = await bcrypt.compare(oldPassword, doctor.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Incorrect old password' });
+      }
+
+      // Hash the new password before saving it
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the password in the database
+      await User.updateOne({ _id: req.params.docId }, { $set: { password: hashedPassword } });
+      return res.status(200).json({ message: 'Password updated successfully' });
+    }
+
+    // If no password is included in the request, update other fields (like name, email, specialty)
+    const updateData = req.body;
+    
+    // Exclude password fields from updateData to ensure it's only other fields being updated
+    if (updateData.password) {
+      delete updateData.password;
+    }
+
+    const result = await User.updateOne({ _id: req.params.docId }, { $set: updateData });
+
+    if (result.nModified === 0) {
+      return res.status(404).json({ message: 'Doctor not found or no changes made' });
+    }
+
+    res.status(200).json({ message: 'Doctor profile updated successfully', result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error', error: err.message });
+  }
+};
+
+// Fetch doctor details
+exports.getDoctorDetails = async (req, res) => {
+  try {
+    const doctor = await User.findById(req.params.docId).select('-password'); // Exclude password field
+    if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+    res.json(doctor);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

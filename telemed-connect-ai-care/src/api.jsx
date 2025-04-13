@@ -137,7 +137,7 @@ export const submitContactForm = async (formData) => {
     throw error;
   }
 };
-// src/api.jsx or src/api/index.js
+
 export const fetchAllContacts = async () => {
   try {
     const res = await fetch(`${API_URL}/getcontacts`, {
@@ -157,3 +157,46 @@ export const fetchAllContacts = async () => {
     throw error;
   }
 };
+
+
+export const sendMessage = async (appointmentId, sender, message) => {
+  try {
+    const response = await fetch(`${API_URL}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        appointmentId,
+        sender,
+        message,
+      }),
+    });
+
+    if (response.ok) {
+      return await response.json(); // Return the saved message object
+    } else {
+      throw new Error("Failed to send message");
+    }
+  } catch (err) {
+    console.error("Error sending message:", err);
+    throw err;
+  }
+};
+
+// Fetch message history for a specific appointment
+export const getMessages = async (appointmentId) => {
+  try {
+    const response = await fetch(`${API_URL}/messages/${appointmentId}`);
+    if (response.ok) {
+      return await response.json(); // Return the message history
+    } else {
+      throw new Error("Failed to fetch messages");
+    }
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    throw err;
+  }
+};
+
+export const updatedoctorprofile = async(id,data)=>axios.put(`${API_URL}/updateproduct/${id}`,data);

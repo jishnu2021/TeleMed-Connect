@@ -1,8 +1,8 @@
 const route = require('express').Router()
 
 const {saveSuggestionAsPDF} = require('../Controllers/SaveSuggestion')
-const { registerUser , loginUser} = require('../Controllers/UserContoller')
-const { registerDoctor, loginDoctor,getAllDoctors,getAllSpecialists , getAllDoctorsSpeciality} = require('../Controllers/DoctorController');
+const { registerUser , loginUser,updateUserDetails,getUserDetails} = require('../Controllers/UserContoller')
+const { registerDoctor, loginDoctor,getAllDoctors,getAllSpecialists , getAllDoctorsSpeciality,updateDoctorProfile,getDoctorDetails} = require('../Controllers/DoctorController');
 const {
     bookAppointment,
     getAppointmentsForDoctor,
@@ -13,6 +13,19 @@ const {
   } = require('../Controllers/AppointmentController');
 const { chatWithBot } = require('../Controllers/chatbotController');
 const {createContact,getAllContacts} = require('../Controllers/ContactController')
+const { sendMessage, getMessages } = require('../Controllers/MessageController');
+const { upload } = require('../Controllers/MessageController'); 
+
+
+route.put('/updatepatientprofile/:userId',updateUserDetails); // Update user details for both roles
+route.get('/updatepatientprofile/:userId', getUserDetails); // Get user details for both roles
+
+route.put('/updatedoctorprofile/:docId', updateDoctorProfile);
+
+route.get('/updatedoctorprofile/:docId', getDoctorDetails);
+
+route.post('/send-message', sendMessage);  // Save the message
+route.get('/messages/:appointmentId', getMessages);
 
 
 route.post("/contact", createContact);

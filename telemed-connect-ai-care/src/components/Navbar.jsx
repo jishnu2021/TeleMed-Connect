@@ -42,7 +42,7 @@ const Navbar = () => {
   }, []);
 
   const renderAppointmentsLink = () => {
-    if (isDoctor && appointmentsCount > 0) {
+    if (isDoctor) {
       return (
         <Button
           variant="ghost"
@@ -60,6 +60,15 @@ const Navbar = () => {
           </Link>
         </Button>
       );
+    }
+    return null;
+  };
+
+  const renderSettingsLink = () => {
+    if (isDoctor) {
+      return <Link to="/doctorsetting" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>;
+    } else if (isPatient) {
+      return <Link to="/patientsetting" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>;
     }
     return null;
   };
@@ -99,12 +108,7 @@ const Navbar = () => {
                     <User className="h-6 w-6 text-medteal" />
                   </button>
                   <div className="absolute right-0 mt-2 w-52 bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Settings
-                    </Link>
+                    {renderSettingsLink()}
                     {renderAppointmentsLink()}
                     <Button
                       variant="ghost"
@@ -143,7 +147,6 @@ const Navbar = () => {
                 </Button>
               </div>
             )}
-
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center ml-4">
               <button
@@ -177,12 +180,7 @@ const Navbar = () => {
 
             {loggedIn && (
               <>
-                <Link
-                  to="/profile"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  Settings
-                </Link>
+                {renderSettingsLink()}
                 {isDoctor && appointmentsCount > 0 && (
                   <Link
                     to="/appointmentspage"
@@ -236,5 +234,6 @@ const Navbar = () => {
     </nav>
   );
 };
+
 
 export default Navbar;

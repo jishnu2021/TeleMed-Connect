@@ -10,7 +10,9 @@ const Notification = () => {
     const fetchAppointments = async () => {
       try {
         const patient = JSON.parse(localStorage.getItem("telemed-patient"));
+        console.log("The data is",patient)
         const data = await getAppointmentsForPatient(patient._id);
+        console.log("The data is",data)
         setAppointments(data);
       } catch (err) {
         console.error("Error loading notifications");
@@ -93,16 +95,12 @@ const Notification = () => {
       </button>
 
       <button
-        disabled={appointment.status !== 'approved'}
-        onClick={() => window.open(`/chat/${appointment._id}`, '_blank')}
-        className={`px-4 py-2 rounded text-sm font-medium w-full ${
-          appointment.status === 'approved'
-            ? 'bg-purple-600 text-white hover:bg-purple-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        }`}
-      >
-        Chat
-      </button>
+  onClick={() => window.open(`/chat/${appointment._id}`, '_blank')}
+  className="px-4 py-2 rounded text-sm font-medium w-full bg-purple-600 text-white hover:bg-purple-700"
+>
+  Chat
+</button>
+
     </div>
   </div>
 ))}

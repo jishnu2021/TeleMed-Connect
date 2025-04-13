@@ -10,8 +10,9 @@ const AppointmentsPage = ({ doctorId }) => {
   const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
+    console.log("The id is ",doctorId)
     if (!doctorId) return;
-
+    
     const fetchAppointments = async () => {
       try {
         const { appointments } = await getAppointmentsForDoctor(doctorId);
