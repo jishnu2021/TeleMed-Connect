@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import Navbar from '../components/Navbar'
-const socket = io(import.meta.env.VITE_BACKEND_URL); // Ensure .env has VITE_BACKEND_URL
+const socket = io('https://telemed-connect-backend.onrender.com'); // Ensure .env has VITE_BACKEND_URL
 
 const VideoConsultationForm = () => {
   const { roomId } = useParams();
