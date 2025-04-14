@@ -61,12 +61,12 @@ io.on('connection', (socket) => {
 // Serve static files (React build) and handle React Router
 if (process.env.NODE_ENV === 'production') {
   // Serve the static files (React build)
-  app.use(express.static(path.join(__dirname, 'dist')));
+  app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
 
   // All non-API routes should return the React app's index.html
 // Correct wildcard with named parameter
 app.all('/{*splat}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist', 'index.html'));
 });
 
 }
