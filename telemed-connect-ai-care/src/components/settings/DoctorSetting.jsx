@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../../components/Navbar'
 
-const API_URL = "http://localhost:5000"
+const API_URL = "https://telemed-connect-backend.onrender.com"
 const DoctorSetting = () => {
   const [doctorData, setDoctorData] = useState(null);
   const [email, setEmail] = useState('');
