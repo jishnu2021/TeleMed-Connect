@@ -64,9 +64,11 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'dist')));
 
   // All non-API routes should return the React app's index.html
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
+// Correct wildcard with named parameter
+app.all('/{*splat}', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 }
 
 // MongoDB and server start

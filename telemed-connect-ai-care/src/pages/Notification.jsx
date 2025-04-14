@@ -9,9 +9,11 @@ const Notification = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const patient = JSON.parse(localStorage.getItem("telemed-patient"));
-        console.log("The data is",patient)
-        const data = await getAppointmentsForPatient(patient._id);
+        const patient = localStorage.getItem("telemed-patient");
+        const parsedPatient = JSON.parse(patient);
+        const patientId = parsedPatient.user ? parsedPatient.user._id : null; // Access _id from the user object
+        console.log("The data is of", patientId);
+        const data = await getAppointmentsForPatient(patientId);
         console.log("The data is",data)
         setAppointments(data);
       } catch (err) {
