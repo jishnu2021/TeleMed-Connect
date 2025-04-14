@@ -1,5 +1,5 @@
 const OpenAI = require('openai');
-const ChatHistory = require('../models/chatHistoryModel');
+const ChatHistory = require('../Models/chatHistoryModel');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
