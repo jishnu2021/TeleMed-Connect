@@ -26,12 +26,13 @@ const App = () => {
 
   useEffect(() => {
     const doctorvalId = localStorage.getItem("telemed-doctor"); 
-    console.log("The id of doctorvali is ", doctorvalId); // Get doctorId from localStorage
+    const result = doctorvalId ? JSON.parse(doctorvalId)._id : null;
+    console.log("The id of doctorvali is ", result); // Get doctorId from localStorage
 
     if (doctorvalId) {
       const parsedDoctor = JSON.parse(doctorvalId).doctor; // Extract the doctor object
-      console.log("The doctor object is: ", parsedDoctor);
-      setDoctorId(parsedDoctor._id); // Now you can access _id correctly
+      console.log("The doctor object is: ", doctorvalId);
+      setDoctorId(result); // Now you can access _id correctly
     }
   }, []); // Empty dependency array to run only once on mount
 
@@ -55,7 +56,7 @@ const App = () => {
             {/* Dynamic Routes */}
             <Route 
               path="/appointmentspage" 
-              element={<AppointmentsPage doctorId={doctorId} /> } 
+              element={ <AppointmentsPage doctorId={doctorId} /> } 
             />
             <Route path="/notification" element={<Notification />} />
             <Route path="/video/:roomId" element={<VideoConsultationForm />} />
