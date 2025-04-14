@@ -65,10 +65,7 @@ if (process.env.NODE_ENV === 'production') {
 
   // All non-API routes should return the React app's index.html
 // Correct wildcard with named parameter
-// app.all('/{*splat}', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-// });
-app.get('*', (req, res) => {
+app.all('/{*splat}', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
