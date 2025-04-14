@@ -55,7 +55,7 @@ const App = () => {
             {/* Dynamic Routes */}
             <Route 
               path="/appointmentspage" 
-              element={doctorId ? <AppointmentsPage doctorId={doctorId} /> : <Navigate to="/login" />} 
+              element={<AppointmentsPage doctorId={doctorId} /> } 
             />
             <Route path="/notification" element={<Notification />} />
             <Route path="/video/:roomId" element={<VideoConsultationForm />} />
