@@ -112,7 +112,7 @@ const AppointmentsPage = ({ doctorId }) => {
         }`}
         disabled={appointment.status !== 'approved'}
         onClick={() =>
-          window.open(`/video/appointment_${appointment._id}`, '_blank')
+          window.open(`/video/${appointment._id}`, '_blank')
         }
       >
         Join Call

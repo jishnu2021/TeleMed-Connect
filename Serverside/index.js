@@ -60,12 +60,12 @@ io.on('connection', (socket) => {
 
 // Serve static files (React build) and handle React Router
 if (process.env.NODE_ENV === 'production') {
-  // Serve the static files in production
-  app.use(express.static(path.join(__dirname, 'build')));
+  // Serve the static files (React build)
+  app.use(express.static(path.join(__dirname, 'dist')));
 
-  // All routes that aren't API should be handled by React Router
+  // All non-API routes should return the React app's index.html
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 }
 
