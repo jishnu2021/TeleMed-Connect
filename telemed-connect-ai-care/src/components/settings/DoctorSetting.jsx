@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../../components/Navbar'
+
+const API_URL = "http://localhost:5000"
 const DoctorSetting = () => {
   const [doctorData, setDoctorData] = useState(null);
   const [email, setEmail] = useState('');
@@ -26,7 +28,7 @@ const DoctorSetting = () => {
     }
 
     // Fetch doctor data from API (GET request)
-    axios.get(`http://localhost:5000/updatedoctorprofile/${docId}`)
+    axios.get(`${API_URL}/updatedoctorprofile/${docId}`)
       .then((response) => {
         const doctorInfo = response.data;
         setDoctorData(doctorInfo);
@@ -57,7 +59,7 @@ const DoctorSetting = () => {
       newPassword
     };
 
-    axios.put(`http://localhost:5000/updatedoctorprofile/${docId}`, passwordData)
+    axios.put(`${API_URL}/updatedoctorprofile/${docId}`, passwordData)
       .then((response) => {
         setSuccess('Password updated successfully.');
         setOldPassword('');
@@ -86,7 +88,7 @@ const DoctorSetting = () => {
       };
   
     // PUT request to update profile
-    axios.put(`http://localhost:5000/updatedoctorprofile/${docId}`, updatedData)
+    axios.put(`${API_URL}/updatedoctorprofile/${docId}`, updatedData)
       .then((response) => {
         setSuccess('Profile updated successfully.');
         alert("Profile updated successfully.")

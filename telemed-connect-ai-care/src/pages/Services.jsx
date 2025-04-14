@@ -51,11 +51,11 @@ const ServiceCard = ({ title, description, icon, price, popular }) => {
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-2">
         <div className="flex justify-between items-center w-full">
-          <span className="text-2xl font-bold">${price}</span>
+          {/* <span className="text-2xl font-bold">${price}</span> */}
           <span className="text-sm text-muted-foreground">per consultation</span>
         </div>
-        <Button className="w-full bg-medblue hover:bg-medblue-dark" asChild>
-          <Link to="/appointment">Get Started</Link>
+        <Button size="lg" className="bg-medblue hover:bg-medblue-dark">
+            <Appointment /> {/* Triggers the popup */}
         </Button>
       </CardFooter>
     </Card>
@@ -68,28 +68,28 @@ const Services = () => {
       title: 'Video Consultation',
       description: 'Connect face-to-face with doctors from anywhere',
       icon: Video,
-      price: "Free",
+      // price: "Free",
       popular: true
     },
     {
       title: 'Chat Consultation',
       description: 'Text-based consultation with quick responses',
       icon: MessageSquare,
-      price: 29,
+      // price: 29,
       popular: false
     },
     {
       title: 'E-Prescription',
       description: 'Get prescriptions sent electronically to your pharmacy',
       icon: FileText,
-      price: 19,
+      // price: 19,
       popular: false
     },
     {
       title: 'Specialist Referrals',
       description: 'Get connected with the right specialist for your needs',
       icon: Stethoscope,
-      price: 59,
+      // price: 59,
       popular: false
     }
   ];
@@ -260,9 +260,3 @@ const Services = () => {
 };
 
 export default Services;
-// when i click Get Started in Video Consaltation as patient then a form open that you have to your name email mobile number ,doctor list(what ever doctor present in the backend) showing a dropdown format the patient select and appoint and waiting for the approval . that doctor got and Appointmnet then he or she aprove it after aproval a message go to patient and patient ask for time doctor put the time and then at that time 
-
-// paitent video call the doctor the doctor recive and solve the patients disease
-
-
-// i give you all the apis if this help you cause  many apis are already ready and if not please give me the comple code 

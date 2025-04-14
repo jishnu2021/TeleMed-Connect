@@ -6,6 +6,8 @@ import '../style/chat.css';  // Add your custom styles for chat
 import Navbar from '../components/Navbar'
 const socket = io('http://localhost:5000'); // Your backend server URL
 
+const API_URL = "http://localhost:5000"
+
 const Chat = () => {
   const { appointmentId } = useParams();
   const [message, setMessage] = useState('');
@@ -32,7 +34,7 @@ const Chat = () => {
     // Fetch message history from the API
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/messages/${appointmentId}`);
+        const response = await axios.get(`${API_URL}/messages/${appointmentId}`);
         setMessages(response.data);  // Set initial chat history
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -58,7 +60,7 @@ const Chat = () => {
 
       try {
         // Save the message to the backend
-        await axios.post('http://localhost:5000/send-message', newMessage);
+        await axios.post(`${API_URL}/send-message`, newMessage);
 
         // Emit the message via socket for live updates
         socket.emit('send-message', newMessage);

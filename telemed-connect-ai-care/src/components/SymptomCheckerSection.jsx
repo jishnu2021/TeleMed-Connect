@@ -11,6 +11,7 @@ const commonSymptoms = [
   'Sore Throat', 'Shortness of Breath', 'Nausea'
 ];
 
+const API_URL = "http://localhost:5000"
 const SymptomCheckerSection = () => {
   const [searchValue, setSearchValue] = useState('');
   const [chatPopupVisible, setChatPopupVisible] = useState(false);
@@ -23,7 +24,7 @@ const SymptomCheckerSection = () => {
 
     try {
       const userId = localStorage.getItem('telemed-patient') || 'guest';
-      const res = await axios.post('http://localhost:5000/askingQuestion', { message: searchValue, userId });
+      const res = await axios.post(`${API_URL}/askingQuestion`, { message: searchValue, userId });
       setBotReply(res.data.reply);
       setDoctor(res.data.suggestedDoctor);
     } catch (error) {
@@ -33,7 +34,7 @@ const SymptomCheckerSection = () => {
 
   const saveAsPDF = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/save-suggestion', {
+      const res = await axios.post(`${API_URL}/save-suggestion`, {
         suggestion: botReply,
         doctor
       }, { responseType: 'blob' });
