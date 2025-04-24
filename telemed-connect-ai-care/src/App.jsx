@@ -21,6 +21,7 @@ import Chat from "./pages/Chat";
 import DoctorSetting from "./components/settings/DoctorSetting";
 import PatientSetting from "./components/settings/PatientSetting";
 import GetPersonalized from "./components/getpersonalized/GetPersonalized";
+import ProtectedRoute from "./pages/ProtectedRoute";
 
 const App = () => {
   const [doctorId, setDoctorId] = useState(null); // State to hold doctorId
@@ -39,43 +40,41 @@ const App = () => {
 
   return (
     <>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Static Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/doctors" element={<Doctors />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/appointment" element={<Appointment />} />
-            
-            {/* Dynamic Routes */}
-            <Route 
-              path="/appointmentspage" 
-              element={ <AppointmentsPage doctorId={doctorId} /> } 
-            />
-            <Route path="/notification" element={<Notification />} />
-            <Route path="/video/:roomId" element={<VideoConsultationForm />} />
-            <Route path="/chat/:appointmentId" element={<Chat />} />
-            
-            <Route path="/getpersonalized" element={<GetPersonalized/>}/>
-            {/* Settings Routes */}
-            <Route path="/doctorsetting" element={<DoctorSetting />} />
-            <Route path="/patientsetting" element={<PatientSetting />} />
-            
-            {/* Catch-all Route for 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-      
-      {/* Chat Button (always visible) */}
-      <Chatbutton />
+<TooltipProvider>
+  <Toaster />
+  <Sonner />
+  <BrowserRouter>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+    
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/appointmentspage" element={<AppointmentsPage doctorId={doctorId} />} />
+        <Route path="/notification" element={<Notification />} />
+        <Route path="/video/:roomId" element={<VideoConsultationForm />} />
+        <Route path="/chat/:appointmentId" element={<Chat />} />
+        <Route path="/getpersonalized" element={<GetPersonalized />} />
+        <Route path="/doctorsetting" element={<DoctorSetting />} />
+        <Route path="/patientsetting" element={<PatientSetting />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/doctors" element={<Doctors />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/appointment" element={<Appointment />} />
+      </Route>
+
+      {/* Catch-all Route for 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
+</TooltipProvider>
+
+{/* Chat Button (always visible) */}
+<Chatbutton />
+
     </>
   );
 };
