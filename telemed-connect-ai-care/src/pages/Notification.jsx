@@ -9,22 +9,32 @@ const Notification = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
+        console.log("useEffect triggered");
         const patient = localStorage.getItem("telemed-patient");
+        console.log("Raw patient from localStorage:", patient);
+  
         const parsedPatient = JSON.parse(patient);
-        const patientId = parsedPatient.user ? parsedPatient.user._id : null; // Access _id from the user object
-        console.log("The data is of", patientId);
-        const data = await getAppointmentsForPatient(patientId);
-        console.log("The data is",data)
-        setAppointments(data);
+        if (!parsedPatient?.user?._id) {
+          console.error("Invalid patient data:", parsedPatient);
+          return;
+        }
+  
+        const patientId = parsedPatient.user._id;
+        console.log("The id is ", patientId);
+  
+        const result = await getAppointmentsForPatient(patientId);
+        console.log("The data print", result);
+        setAppointments(result);
       } catch (err) {
-        console.error("Error loading notifications");
+        console.error("Error loading notifications:", err);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchAppointments();
   }, []);
+  
 
   if (loading) {
     return (

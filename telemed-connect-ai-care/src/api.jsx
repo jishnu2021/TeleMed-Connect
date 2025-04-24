@@ -107,11 +107,19 @@ export const updateStatusAppointment = async (appointmentId, status) => {
 
 
 export const getAppointmentsForPatient = async (patientId) => {
+  console.log("Calling appointments API with ID:", patientId);
   try {
     const response = await axios.get(`${API_URL}/patient/${patientId}`);
-    return response.data; // This will be an array of appointments
+    console.log("API success:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching patient appointments:", error);
+    if (error.response) {
+      console.error("Server responded with error:", error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Request setup error:", error.message);
+    }
     throw error;
   }
 };
