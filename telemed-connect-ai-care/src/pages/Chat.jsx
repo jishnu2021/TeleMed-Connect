@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import axios from 'axios';  // Ensure axios is installed
 import '../style/chat.css';  // Add your custom styles for chat
 import Navbar from '../components/Navbar'
-const socket = io('http://localhost:5000'); // Your backend server URL
+const socket = io('https://telemed-connect-nodebackend.onrender.com'); // Your backend server URL
 
 const API_URL = "https://telemed-connect-nodebackend.onrender.com"
 

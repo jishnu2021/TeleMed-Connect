@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import Navbar from '../components/Navbar';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://telemed-connect-nodebackend.onrender.com');
 
 const VideoConsultationForm = () => {
   const { roomId } = useParams();
