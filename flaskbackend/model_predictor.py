@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import numpy as np
 import pickle
 from flask_cors import CORS
+import os
 # Load your model (Assuming it is saved as 'svc.pkl')
 with open('svc.pkl', 'rb') as file:
     svc = pickle.load(file)
@@ -97,4 +98,5 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    PORT = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=PORT)

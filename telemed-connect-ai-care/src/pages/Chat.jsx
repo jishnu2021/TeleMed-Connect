@@ -6,7 +6,7 @@ import '../style/chat.css';  // Add your custom styles for chat
 import Navbar from '../components/Navbar'
 const socket = io('http://localhost:5000'); // Your backend server URL
 
-const API_URL = "http://localhost:5000"
+const API_URL = "https://telemed-connect-nodebackend.onrender.com"
 
 const Chat = () => {
   const { appointmentId } = useParams();
