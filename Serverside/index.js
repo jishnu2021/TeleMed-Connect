@@ -7,79 +7,90 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
 const server = http.createServer(app);
-const io = new Server(server, { 
-  cors: { 
-    origin: process.env.NODE_ENV === 'production' ? 'https://telemed-connect-frontend.onrender.com' : '*',  // Restrict to your frontend in production
+
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173', // Update based on your frontend port
     methods: ['GET', 'POST'],
   },
 });
 
-// Importing API routes (your existing routes)
+// Import API routes
 const Router = require('./routes/Route');
-
-// Middleware
-app.use(express.json());
-app.use(cors()); // Allow cross-origin requests
 app.use('/', Router);
 
-// MongoDB connection URL
-const MongoURL = process.env.MONGODB_URL;
-
-// WebSocket handling for video call signaling
+// WebSocket handling
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('🔗 User connected:', socket.id);
 
-  // Handle joining a room for video chat or messaging
+  // --- Video Call Signaling ---
   socket.on('join', (roomId) => {
-    console.log(`User ${socket.id} joined room ${roomId}`);
+    const room = io.sockets.adapter.rooms.get(roomId);
+    const numClients = room ? room.size : 0;
+  
     socket.join(roomId);
-    socket.to(roomId).emit('user-joined', socket.id);  // Notify the room that a user has joined
+    console.log(`🟢 User ${socket.id} joined room ${roomId}`);
+  
+    if (numClients > 1) {
+      socket.to(roomId).emit('user-joined', socket.id); // let others know someone joined
+      socket.emit('other-user', [...room].find(id => id !== socket.id)); // send back the other user's ID
+    }
   });
+  
 
-  // Handle WebRTC signaling events (for video call handling)
   socket.on('offer', ({ offer, to }) => {
-    console.log(`Sending offer from ${socket.id} to ${to}`);
-    io.to(to).emit('offer', { offer, from: socket.id });  // Send offer to the target user
+    io.to(to).emit('offer', { offer, from: socket.id });
   });
 
   socket.on('answer', ({ answer, to }) => {
-    console.log(`Sending answer from ${socket.id} to ${to}`);
-    io.to(to).emit('answer', { answer, from: socket.id });  // Send answer to the target user
+    io.to(to).emit('answer', { answer, from: socket.id });
   });
 
   socket.on('ice-candidate', ({ candidate, to }) => {
-    console.log(`Sending ICE candidate from ${socket.id} to ${to}`);
-    io.to(to).emit('ice-candidate', { candidate, from: socket.id });  // Send ICE candidate to the target user
+    io.to(to).emit('ice-candidate', { candidate, from: socket.id });
+  });
+
+  // --- Live Chat Handling ---
+  socket.on('send-message', ({ roomId, message, sender }) => {
+    console.log(`💬 Message from ${sender} in room ${roomId}: ${message}`);
+    io.to(roomId).emit('receive-message', { message, sender });
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('❌ User disconnected:', socket.id);
   });
 });
 
-// Serve static files (React build) and handle React Router
+// Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve the static files (React build)
   app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
 
-  // All non-API routes should return the React app's index.html
-// Correct wildcard with named parameter
-app.all('/{*splat}', (req, res) => {
-  res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist', 'index.html'));
-});
-
+  app.get(/(.*)/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist', 'index.html'));
+  });
 }
 
-// MongoDB and server start
-mongoose
-  .connect(MongoURL)
+// Connect to MongoDB and start server
+mongoose.connect(process.env.MONGODB_URL)
   .then(() => {
-    console.log('MongoDB connected !!');
+    console.log('✅ MongoDB connected!');
     server.listen(process.env.PORT || 5000, () => {
-      console.log(`Server running at http://localhost:${process.env.PORT || 5000}`);
+      console.log(`🚀 Server running at http://localhost:${process.env.PORT || 5000}`);
     });
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
+    console.error('❌ MongoDB connection error:', error);
   });
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.disconnect();
+  server.close(() => {
+    console.log('🛑 Server closed gracefully');
+    process.exit(0);
+  });
+});
