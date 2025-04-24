@@ -3,12 +3,11 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 5173,
-    historyApiFallback: true, // Enable history API fallback for React Router
+    // No need for historyApiFallback
   },
   plugins: [
     react(),
@@ -20,6 +19,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    outDir: 'dist', // Explicitly set the output directory to 'dist'
+    outDir: 'dist',
   },
 }));

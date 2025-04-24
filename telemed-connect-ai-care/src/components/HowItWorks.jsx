@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React , {useState,useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { 
   UserPlus, 
@@ -33,6 +33,15 @@ const steps = [
 ];
 
 const HowItWorks = () => {
+  const [showSignUp, setShowSignUp] = useState(true);
+  
+  useEffect(() => {
+    const patientExists = localStorage.getItem('telemed-patient');
+    const doctorExists = localStorage.getItem('telemed-doctor');
+    if (patientExists || doctorExists) {
+      setShowSignUp(false);
+    }
+  }, []);
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -71,9 +80,11 @@ const HowItWorks = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/signup"><button className="px-6 py-3 bg-medblue hover:bg-medblue-dark text-white font-medium rounded-lg transition-colors">
-              Sign Up Now
+             {showSignUp && (
+           <Link to="/signup"> <button className="px-6 py-3 bg-medblue hover:bg-medblue-dark text-white font-medium rounded-lg transition-colors">
+              Sign Up Free
             </button></Link>
+          )}
             <Link to="#"><button className="px-6 py-3 border border-medteal text-medteal hover:bg-medteal hover:text-white font-medium rounded-lg transition-colors">
               Browse Doctors
             </button></Link>

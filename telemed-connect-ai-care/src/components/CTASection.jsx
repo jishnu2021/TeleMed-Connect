@@ -1,10 +1,20 @@
 
-import React from 'react';
+import React,{useEffect} from 'react';
 import { Shield, Award, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 const CTASection = () => {
+    const [showSignUp, setShowSignUp] = useState(true);
+  
+    useEffect(() => {
+      const patientExists = localStorage.getItem('telemed-patient');
+      const doctorExists = localStorage.getItem('telemed-doctor');
+      if (patientExists || doctorExists) {
+        setShowSignUp(false);
+      }
+    }, []);
   return (
     <section className="py-16 bg-medblue-dark text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,9 +61,11 @@ const CTASection = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-white text-medblue hover:bg-gray-100"  asChild>
-                <Link to="/signup">Sign Up Free</Link>
-              </Button>
+            {showSignUp && (
+            <button className="px-6 py-3 bg-medblue hover:bg-medblue-dark text-white font-medium rounded-lg transition-colors">
+              Sign Up Free
+            </button>
+          )}
               <Button size="lg" variant="outline" className="border-white text-medblue hover:bg-white/10" asChild>
                 <Link to="/services">Learn More</Link>
               </Button>

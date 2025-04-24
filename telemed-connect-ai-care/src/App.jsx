@@ -20,6 +20,7 @@ import Appointment from "./pages/Appointment";
 import Chat from "./pages/Chat";
 import DoctorSetting from "./components/settings/DoctorSetting";
 import PatientSetting from "./components/settings/PatientSetting";
+import GetPersonalized from "./components/getpersonalized/GetPersonalized";
 
 const App = () => {
   const [doctorId, setDoctorId] = useState(null); // State to hold doctorId
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/video/:roomId" element={<VideoConsultationForm />} />
             <Route path="/chat/:appointmentId" element={<Chat />} />
             
+            <Route path="/getpersonalized" element={<GetPersonalized/>}/>
             {/* Settings Routes */}
             <Route path="/doctorsetting" element={<DoctorSetting />} />
             <Route path="/patientsetting" element={<PatientSetting />} />

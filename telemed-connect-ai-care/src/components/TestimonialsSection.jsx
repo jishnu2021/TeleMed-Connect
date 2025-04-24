@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 
 const testimonials = [
@@ -27,6 +26,16 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => {
+  const [showSignUp, setShowSignUp] = useState(true);
+
+  useEffect(() => {
+    const patientExists = localStorage.getItem('telemed-patient');
+    const doctorExists = localStorage.getItem('telemed-doctor');
+    if (patientExists || doctorExists) {
+      setShowSignUp(false);
+    }
+  }, []);
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -79,10 +88,12 @@ const TestimonialsSection = () => {
               Experience healthcare that fits your life, not the other way around.
             </p>
           </div>
-          
-          <button className="px-6 py-3 bg-medblue hover:bg-medblue-dark text-white font-medium rounded-lg transition-colors">
-            Sign Up Free
-          </button>
+
+          {showSignUp && (
+            <button className="px-6 py-3 bg-medblue hover:bg-medblue-dark text-white font-medium rounded-lg transition-colors">
+              Sign Up Free
+            </button>
+          )}
         </div>
       </div>
     </section>

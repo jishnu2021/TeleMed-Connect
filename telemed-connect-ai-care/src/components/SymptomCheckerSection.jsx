@@ -11,7 +11,7 @@ const commonSymptoms = [
   'Sore Throat', 'Shortness of Breath', 'Nausea'
 ];
 
-const API_URL = "https://telemed-connect-backend.onrender.com"
+const API_URL = "http://localhost:5000"
 const SymptomCheckerSection = () => {
   const [searchValue, setSearchValue] = useState('');
   const [chatPopupVisible, setChatPopupVisible] = useState(false);

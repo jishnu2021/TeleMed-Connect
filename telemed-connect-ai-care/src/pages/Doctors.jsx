@@ -482,7 +482,7 @@ const Doctors = () => {
                   Our medical concierge service can match you with the perfect specialist based on your symptoms and medical history.
                 </p>
                 <Button size="lg" className="bg-medblue hover:bg-medblue-dark">
-                  Get Personalized Recommendations
+                  <Link to="/getpersonalized">Get Personalized Recommendations</Link>
                 </Button>
               </div>
             </section>
