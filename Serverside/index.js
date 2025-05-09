@@ -392,8 +392,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Serve static files (production)
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/dist/index.html')));
+  app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
+  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html')));
 }
 
 // Connect to MongoDB and start server
