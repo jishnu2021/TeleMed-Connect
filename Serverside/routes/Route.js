@@ -48,11 +48,7 @@ route.get('/updatepatientprofile/:userId', getUserDetails); // Get user details 
 
 route.put('/updatedoctorprofile/:docId', updateDoctorProfile);
 
-route.get('/updatedoctorprofile/:docId', getDoctorDetails);
-
-route.post('/send-message', sendMessage);  // Save the message
-route.get('/messages/:appointmentId', getMessages);
-
+route.get('/updatedoctorprofile/:docId', getDoctorDetails)
 
 route.post("/contact", createContact);
 route.get("/getcontacts", getAllContacts);
