@@ -26,7 +26,7 @@ const Appointment = () => {
   const [isDoctorLoading, setIsDoctorLoading] = useState(false);
   const [showDoctorList, setShowDoctorList] = useState(false);
   const patient = JSON.parse(localStorage.getItem('telemed-patient'));
-  const idres = patient ? patient.user._id : null;
+  const idres = patient ? patient._id : null;
   console.log("The id :",idres)
   useEffect(() => {
     if (open) {

@@ -13,8 +13,32 @@ const {
   } = require('../Controllers/AppointmentController');
 const { chatWithBot } = require('../Controllers/chatbotController');
 const {createContact,getAllContacts} = require('../Controllers/ContactController')
-const { sendMessage, getMessages } = require('../Controllers/MessageController');
 const { upload } = require('../Controllers/MessageController'); 
+const messageController = require('../Controllers/MessageController');
+
+// Base path: /api/messages
+
+// Get message history for a specific appointment
+route.get('/:appointmentId', messageController.getMessages);
+
+// Send a new message
+route.post('/', messageController.sendMessage);
+
+// Mark messages as read
+route.put('/read/:appointmentId', messageController.markMessagesAsRead);
+
+// Get unread message count for a user
+route.get('/unread/:userId', messageController.getUnreadCount);
+
+// Search messages by content
+route.get('/search', messageController.searchMessages);
+
+// Get latest message for each appointment
+route.get('/latest', messageController.getLatestMessages);
+
+// Delete messages for an appointment (Admin or system use only)
+route.delete('/:appointmentId', messageController.deleteMessages);
+
 
 // const AppointmentModel = require('../Models/AppointmentModel');
 

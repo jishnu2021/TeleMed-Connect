@@ -14,12 +14,12 @@ const Notification = () => {
         console.log("Raw patient from localStorage:", patient);
   
         const parsedPatient = JSON.parse(patient);
-        if (!parsedPatient?.user?._id) {
+        if (!parsedPatient?._id) {
           console.error("Invalid patient data:", parsedPatient);
           return;
         }
   
-        const patientId = parsedPatient.user._id;
+        const patientId = parsedPatient._id;
         console.log("The id is ", patientId);
   
         const result = await getAppointmentsForPatient(patientId);
