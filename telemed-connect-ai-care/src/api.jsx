@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = "https://telemed-connect-backend.onrender.com"
 
-
 export const patcreateaccount = async (userData) => {
     try {
       const response = await axios.post(`${API_URL}/patientregister`, userData);
@@ -12,7 +11,6 @@ export const patcreateaccount = async (userData) => {
     }
   }
 
-  
 export const patlogin = async (userData) => {
     try {
       const response = await axios.post(`${API_URL}/patientlogin`, userData);
@@ -21,8 +19,6 @@ export const patlogin = async (userData) => {
       throw error.response?.data || { message: error.message || 'Unknown error' };
     }
 }
-
-
 export const doccreateaccount = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/doctorregister`, userData);
