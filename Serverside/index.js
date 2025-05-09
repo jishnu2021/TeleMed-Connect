@@ -13,6 +13,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',') 
   : ['http://localhost:5173', 'http://localhost:3000','https://telemed-connect.onrender.com', 'https://telemed-connect-backend.onrender.com'];
 
+// Configure CORS with proper options
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -24,8 +25,13 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -40,7 +46,6 @@ const io = new Server(server, {
   },
   pingTimeout: 60000
 });
-
 
 // Import API routes
 const Router = require('./routes/Route');
@@ -166,42 +171,39 @@ io.on('connection', (socket) => {
   });
 
   // Live chat functionality
-// Socket.IO messaging section (replace in server.js)
+  socket.on('send-message', (messageData) => {
+    const { appointmentId, message, sender, timestamp } = messageData;
+    
+    if (!appointmentId) {
+      console.error('Missing appointmentId in message');
+      return;
+    }
+    
+    console.log(`💬 Message from ${sender} in appointment ${appointmentId}: ${message}`);
+    
+    // Generate a unique ID for the message
+    const messageId = Math.random().toString(36).substring(2, 9);
+    
+    // Create the message object
+    const completeMessage = { 
+      appointmentId,
+      message, 
+      sender,
+      timestamp: timestamp || new Date().toISOString(),
+      id: messageId
+    };
+    
+    // Broadcast message to everyone in the room (appointment)
+    io.to(appointmentId).emit('receive-message', completeMessage);
+  });
 
-// Live chat functionality
-socket.on('send-message', (messageData) => {
-  const { appointmentId, message, sender, timestamp } = messageData;
-  
-  if (!appointmentId) {
-    console.error('Missing appointmentId in message');
-    return;
-  }
-  
-  console.log(`💬 Message from ${sender} in appointment ${appointmentId}: ${message}`);
-  
-  // Generate a unique ID for the message
-  const messageId = Math.random().toString(36).substring(2, 9);
-  
-  // Create the message object
-  const completeMessage = { 
-    appointmentId,
-    message, 
-    sender,
-    timestamp: timestamp || new Date().toISOString(),
-    id: messageId
-  };
-  
-  // Broadcast message to everyone in the room (appointment)
-  io.to(appointmentId).emit('receive-message', completeMessage);
-});
-
-// Handle typing indicator
-socket.on('typing', ({ sender, appointmentId }) => {
-  if (!appointmentId) return;
-  
-  console.log(`👆 ${sender} is typing in appointment ${appointmentId}`);
-  socket.to(appointmentId).emit('typing', { sender, appointmentId });
-});
+  // Handle typing indicator
+  socket.on('typing', ({ sender, appointmentId }) => {
+    if (!appointmentId) return;
+    
+    console.log(`👆 ${sender} is typing in appointment ${appointmentId}`);
+    socket.to(appointmentId).emit('typing', { sender, appointmentId });
+  });
 });
 
 // Health check endpoint for Render
