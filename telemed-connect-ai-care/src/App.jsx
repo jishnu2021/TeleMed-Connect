@@ -28,7 +28,7 @@ const App = () => {
 
   useEffect(() => {
     const doctorvalId = localStorage.getItem("telemed-doctor"); 
-    const result = doctorvalId ? JSON.parse(doctorvalId).doctor._id : null;
+    const result = doctorvalId ? JSON.parse(doctorvalId)._id : null;
     console.log("The id of doctorvali is ", result); // Get doctorId from localStorage
 
     if (doctorvalId) {
