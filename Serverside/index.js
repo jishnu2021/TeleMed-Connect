@@ -11,7 +11,7 @@ const app = express();
 // Configure CORS to accept requests from allowed origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:5173', 'http://localhost:3000'];
+  : ['http://localhost:5173', 'http://localhost:3000','https://telemed-connect.onrender.com', 'https://telemed-connect-backend.onrender.com'];
 
 app.use(cors({
   origin: function(origin, callback) {
@@ -34,12 +34,13 @@ const server = http.createServer(app);
 // Set up Socket.IO with proper CORS
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow all origins during development
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   },
-  pingTimeout: 60000 // Increase timeout for better connection stability
+  pingTimeout: 60000
 });
+
 
 // Import API routes
 const Router = require('./routes/Route');
