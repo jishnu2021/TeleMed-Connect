@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 
 // For deployment on Render
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? "https://your-render-backend-url.onrender.com"  // Replace with your actual Render URL
+  ? "https://telemed-connect-backend.onrender.com"  // Replace with your actual Render URL
   : "http://localhost:5000";
 
 // Create socket connection outside component to prevent multiple connections

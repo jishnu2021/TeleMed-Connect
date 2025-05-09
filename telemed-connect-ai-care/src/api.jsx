@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:5000";
-// const API_URL = "https://telemed-connect-nodebackend.onrender.com"
+// const API_URL = "http://localhost:5000";
+const API_URL = "https://telemed-connect-backend.onrender.com"
 
 export const patcreateaccount = async (userData) => {
     try {
@@ -215,7 +215,7 @@ export const getPrediction = async (req, res) => {
   const { symptoms } = req.body;
 
   try {
-    const response = await axios.post('http://localhost:5000/predict', { symptoms });
+    const response = await axios.post('https://telemed-connect-backend.onrender.com/predict', { symptoms });
     res.json(response.data);
   } catch (error) {
     console.error("Prediction Error:", error);
