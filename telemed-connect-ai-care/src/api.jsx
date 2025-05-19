@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = "https://telemed-connect-backend.onrender.com"
+// Use a single API URL without health checks
+const API_URL = process.env.NODE_ENV === 'development' 
+  ? "http://localhost:5000" 
+  : "https://telemed-connect-backend.onrender.com";
 
 export const patcreateaccount = async (userData) => {
     try {
@@ -38,31 +41,80 @@ export const doclogin = async (userData) => {
 }
 
 export const getAllDoctors = async () => {
+  console.log(`Calling getAllDoctors API: ${API_URL}/alldoctors`);
   try {
-    const response = await axios.get(`${API_URL}/alldoctors`);
-    return response.data;
+    const response = await axios.get(`${API_URL}/alldoctors`, { timeout: 5000 });
+    console.log('getAllDoctors API response status:', response.status);
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`getAllDoctors API returned ${response.data.length} doctors`);
+      return response.data;
+    } else {
+      console.warn('getAllDoctors API did not return an array:', response.data);
+      return [];
+    }
   } catch (error) {
-    throw error.response?.data || { message: error.message || 'Unknown error' };
+    console.error('getAllDoctors API error:', error.message);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received from server. Request:', error.request);
+    }
+    return []; // Return empty array instead of throwing
   }
 }
 
 export const getAllSpecialists = async () => {
+  console.log(`Calling getAllSpecialists API: ${API_URL}/getallspeciality`);
   try {
-    const response = await axios.get(`${API_URL}/allspecialists`);
-    if (Array.isArray(response.data)) {
-      return response.data.map(specialist => ({
-        id: specialist._id || specialist.id,  // Ensure we get a unique identifier
-        name: specialist.name || specialist,  // Ensure the name is available
-      }));
+    const response = await axios.get(`${API_URL}/allspecialists`, { timeout: 10000 });
+    console.log('getAllSpecialists API response status:', response.status);
+    console.log('Response data:', response.data);
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`getAllSpecialists API returned ${response.data.length} specialists`);
+      return response.data;
     } else {
-      throw new Error("Unexpected response format from specialists API");
+      console.warn('getAllSpecialists API did not return an array:', response.data);
+      return [];
     }
   } catch (error) {
-    console.error('Error fetching specialists:', error);
-    throw error.response?.data || { message: error.message || 'Unknown error' };
+    console.error('getAllSpecialists API error:', error.message);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received from server. Request:', error.request);
+    }
+    return []; // Return empty array instead of throwing
   }
 };
 
+export const getRegisteredDoctors = async () => {
+  console.log(`Calling getRegisteredDoctors API: ${API_URL}/registered-doctors`);
+  try {
+    const response = await axios.get(`${API_URL}/registered-doctors`, { timeout: 8000 });
+    console.log('getRegisteredDoctors API response status:', response.status);
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`getRegisteredDoctors API returned ${response.data.length} doctors`);
+      return response.data;
+    } else {
+      console.warn('getRegisteredDoctors API did not return an array:', response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error('getRegisteredDoctors API error:', error.message);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received from server. Request:', error.request);
+    }
+    return []; // Return empty array instead of throwing
+  }
+};
 
 export const bookAppointment = async (appointmentData) => {
   try {
@@ -74,11 +126,27 @@ export const bookAppointment = async (appointmentData) => {
 }
 
 export const getdoctorspeciality = async () => {
+  
   try {
-    const response = await axios.get(`${API_URL}/alldoctorsspeciality`);
-    return response.data;
+    const response = await axios.get(`${API_URL}/getallspeciality`, { timeout: 5000 });
+    console.log('getdoctorspeciality API response status:', response.status);
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`getdoctorspeciality API returned ${response.data.length} doctors`);
+      return response.data;
+    } else {
+      console.warn('getdoctorspeciality API did not return an array:', response.data);
+      return [];
+    }
   } catch (error) {
-    throw error.response?.data || { message: error.message || 'Unknown error' };
+    console.error('getdoctorspeciality API error:', error.message);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received from server. Request:', error.request);
+    }
+    return []; // Return empty array instead of throwing
   }
 }
 

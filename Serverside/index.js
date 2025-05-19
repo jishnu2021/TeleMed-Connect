@@ -6,7 +6,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 require('dotenv').config();
 
-const Router = require('./routes/Route');
+const Router = require('./routes/Route.js');
 const app = express();
 
 // Allow cross-origin requests
@@ -118,6 +118,36 @@ io.on('connection', (socket) => {
 // Health Check
 app.get('/health', (req, res) => res.send('OK'));
 
+// Add a better health check
+app.get('/health-check', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    const isConnected = mongoose.connection.readyState === 1;
+    
+    // Check if doctors collection exists and has data
+    let doctorCount = 0;
+    if (isConnected) {
+      doctorCount = await mongoose.connection.db
+        .collection('doctordatasets')
+        .countDocuments();
+    }
+    
+    res.json({
+      status: 'OK',
+      mongodb: isConnected ? 'Connected' : 'Disconnected',
+      doctorCount: doctorCount,
+      mongodbReadyState: mongoose.connection.readyState
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      error: error.message,
+      mongodbReadyState: mongoose.connection.readyState
+    });
+  }
+});
+
 // Debug active rooms (only in development)
 if (process.env.NODE_ENV !== 'production') {
   app.get('/debug/rooms', (req, res) => {
@@ -135,16 +165,20 @@ if (process.env.NODE_ENV === 'production') {
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
-const MONGODB_URL = process.env.MONGODB_URL;
+
+const MONGODB_URL=process.env.MONGODB_URL
+
 
 if (!MONGODB_URL) {
   console.error('❌ MONGODB_URL not defined');
   process.exit(1);
 }
 
+
 mongoose.connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('✅ MongoDB connected');
+    console.log(MONGODB_URL);
     server.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
@@ -152,6 +186,7 @@ mongoose.connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true 
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
   });
+
 
 // Graceful shutdown
 const shutdown = async () => {
@@ -163,3 +198,4 @@ const shutdown = async () => {
 };
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+

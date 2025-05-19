@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
-import { getdoctorspeciality } from '../api'; // Import the API function to get all doctors
+import { getdoctorspeciality, getAllDoctors, getAllSpecialists, getRegisteredDoctors } from '../api'; // Added getRegisteredDoctors
 import { bookAppointment } from '../api'; // Import the bookAppointment function from the API file
 
 const Appointment = () => {
@@ -83,11 +83,97 @@ const Appointment = () => {
   const fetchDoctors = async () => {
     try {
       setIsDoctorLoading(true);
-      const response = await getdoctorspeciality();
-      setDoctors(response); // Update doctors data
-      setIsDoctorLoading(false);
+      console.log('Fetching doctors...');
+      
+      // First try to get registered doctors from the new API endpoint
+      try {
+        console.log('Attempting to fetch from /registered-doctors endpoint');
+        const response = await getRegisteredDoctors();
+        console.log('getRegisteredDoctors response:', response);
+        
+        if (response && Array.isArray(response) && response.length > 0) {
+          console.log(`Successfully found ${response.length} registered doctors`);
+          const formattedDoctors = response.map((doctor, index) => ({
+            _id: doctor._id || `reg-${index + 1}`,
+            name: doctor.name,
+            specialist: doctor.specialist
+          }));
+          setDoctors(formattedDoctors);
+          setIsDoctorLoading(false);
+          return;
+        } else {
+          console.log('getRegisteredDoctors returned empty or invalid data:', response);
+        }
+      } catch (registeredDoctorsError) {
+        console.error('Error fetching registered doctors:', registeredDoctorsError);
+      }
+      
+      // Then try to get specialists from the /allspecialists endpoint
+      try {
+        console.log('Attempting to fetch from /allspecialists endpoint');
+        const response = await getAllSpecialists();
+        console.log('getAllSpecialists response:', response);
+        
+        if (response && Array.isArray(response) && response.length > 0) {
+          console.log(`Successfully found ${response.length} specialists`);
+          setDoctors(response);
+          setIsDoctorLoading(false);
+          return;
+        } else {
+          console.log('getAllSpecialists returned empty or invalid data:', response);
+        }
+      } catch (specialistsError) {
+        console.error('Error fetching specialists:', specialistsError);
+      }
+      
+      // Then try to get all doctors from the /alldoctors endpoint
+      try {
+        console.log('Attempting to fetch from /alldoctors endpoint');
+        const response = await getAllDoctors();
+        console.log('getAllDoctors response:', response);
+        
+        if (response && Array.isArray(response) && response.length > 0) {
+          console.log(`Successfully found ${response.length} doctors`);
+          setDoctors(response);
+          setIsDoctorLoading(false);
+          return;
+        } else {
+          console.log('getAllDoctors returned empty or invalid data:', response);
+        }
+      } catch (allDoctorsError) {
+        console.error('Error fetching all doctors:', allDoctorsError);
+      }
+      
+      // Fallback to the /alldoctorsspeciality endpoint
+      try {
+        console.log('Attempting to fetch from /alldoctorsspeciality endpoint');
+        const response = await getdoctorspeciality();
+        console.log('getdoctorspeciality response:', response);
+        
+        if (response && Array.isArray(response) && response.length > 0) {
+          console.log(`Successfully found ${response.length} doctors from speciality endpoint`);
+          setDoctors(response);
+          setIsDoctorLoading(false);
+          return;
+        } else {
+          console.error('getdoctorspeciality returned empty or invalid data:', response);
+        }
+      } catch (specialityError) {
+        console.error('Error fetching doctor specialities:', specialityError);
+      }
+      
+      // If we reach here, all API calls failed or returned no data
+      console.error('All API calls failed or returned no data');
+      
+      // As a last resort, set some hardcoded sample doctors so user can proceed
+    
+      
+      console.log('Using sample doctors as fallback');
+      setDoctors(sampleDoctors);
+      
     } catch (error) {
-      console.error('Error fetching doctors:', error);
+      console.error('Unexpected error in fetchDoctors:', error);
+    } finally {
       setIsDoctorLoading(false);
     }
   };
@@ -100,9 +186,10 @@ const Appointment = () => {
   };
 
   const handleDoctorSelect = (doctorId, doctorName, doctorSpecialist) => {
+    console.log('Selected doctor:', { doctorId, doctorName, doctorSpecialist });
     setFormData({
       ...formData,
-      doctor: `${doctorName} - ${doctorSpecialist}`, // Combine name and specialist
+      doctor: `${doctorName} - ${doctorSpecialist || 'Specialist'}`, // Handle missing specialist field
       doctorId: doctorId, // Store doctorId for the selected doctor
     });
     setShowDoctorList(false); // Hide the list after selecting
@@ -195,17 +282,23 @@ const Appointment = () => {
             {showDoctorList && (
               <div className="border rounded-md mt-2 max-h-40 overflow-y-auto">
                 {isDoctorLoading ? (
-                  <p>Loading doctors...</p>
-                ) : (
-                  doctors?.map((doctor) => (
+                  <p className="p-2 text-gray-500">Loading doctors...</p>
+                ) : doctors && doctors.length > 0 ? (
+                  doctors.map((doctor) => (
                     <div
-                      key={doctor._id} // Ensure a unique key for each doctor
-                      onClick={() => handleDoctorSelect(doctor._id, doctor.name, doctor.specialist)} // Pass the correct specialist field
+                      key={doctor._id || doctor.id || Math.random().toString()} 
+                      onClick={() => handleDoctorSelect(
+                        doctor._id || doctor.id || '',
+                        doctor.name || 'Unnamed Doctor', 
+                        doctor.specialist || doctor.specialty || 'Specialist'
+                      )}
                       className="p-2 cursor-pointer hover:bg-gray-200"
                     >
-                      {doctor.name} - {doctor.specialist} {/* Show name and specialist */}
+                      {doctor.name || 'Unnamed Doctor'} - {doctor.specialist || doctor.specialty || 'Specialist'}
                     </div>
                   ))
+                ) : (
+                  <p className="p-2 text-gray-500">No doctors available. Please try again later.</p>
                 )}
               </div>
             )}

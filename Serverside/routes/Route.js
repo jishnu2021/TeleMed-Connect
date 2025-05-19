@@ -2,7 +2,7 @@ const route = require('express').Router()
 
 const {saveSuggestionAsPDF} = require('../Controllers/SaveSuggestion')
 const { registerUser , loginUser,updateUserDetails,getUserDetails} = require('../Controllers/UserContoller')
-const { registerDoctor, loginDoctor,getAllDoctors,getAllSpecialists , getAllDoctorsSpeciality,updateDoctorProfile,getDoctorDetails} = require('../Controllers/DoctorController');
+const { registerDoctor, loginDoctor,getAllDoctors,getAllSpecialists , getAllDoctorsSpeciality,updateDoctorProfile,getDoctorDetails, getRegisteredDoctors} = require('../Controllers/DoctorController');
 const {
     bookAppointment,
     getAppointmentsForDoctor,
@@ -15,10 +15,13 @@ const { chatWithBot } = require('../Controllers/chatbotController');
 const {createContact,getAllContacts} = require('../Controllers/ContactController')
 const { upload } = require('../Controllers/MessageController'); 
 const messageController = require('../Controllers/MessageController');
+const  { getAllSpeciality } = require('../Controllers/DoctorFixed.js');
 
 // Base path: /api/messages
 
 // Get message history for a specific appointment
+
+route.get('/getallspeciality', getAllSpeciality); // Get all doctors by specialty
 route.get('/:appointmentId', messageController.getMessages);
 
 // Send a new message
@@ -68,13 +71,34 @@ route.post('/doctorlogin', loginDoctor);
 route.get('/alldoctors', getAllDoctors);
 route.get('/allspecialists', getAllSpecialists);
 route.get('/alldoctorsspeciality', getAllDoctorsSpeciality);
+route.get('/registered-doctors', getRegisteredDoctors);
 
 route.post('/patientregister' , registerUser);
 route.post('/patientlogin',loginUser)
 
+// Add a diagnostic route to see what's in the database
+route.get('/check-doctors-db', async (req, res) => {
+  try {
+    const User = require('../Models/DoctoreSchema');
+    const allDoctors = await User.find({}).lean();
+    res.json({
+      count: allDoctors.length,
+      sampleData: allDoctors.slice(0, 3),
+      collectionName: User.collection.name
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-
-
+// Test route - always returns static data
+route.get('/test-doctors', (req, res) => {
+  console.log('Test doctors route called');
+  res.json([
+    { name: 'Dr. Test Johnson', specialist: 'Test Specialist' },
+    { name: 'Dr. Test Smith', specialist: 'Another Specialist' }
+  ]);
+});
 
 module.exports = route;
 

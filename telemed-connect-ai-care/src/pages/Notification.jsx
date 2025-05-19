@@ -9,20 +9,19 @@ const Notification = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        console.log("useEffect triggered");
         const patient = localStorage.getItem("telemed-patient");
-        console.log("Raw patient from localStorage:", patient);
-  
-        const parsedPatient = JSON.parse(patient);
-        if (!parsedPatient?._id) {
-          console.error("Invalid patient data:", parsedPatient);
-          return;
-        }
-  
-        const patientId = parsedPatient._id;
-        console.log("The id is ", patientId);
-  
-        const result = await getAppointmentsForPatient(patientId);
+console.log("Raw patient from localStorage:", patient);
+
+const parsedPatient = JSON.parse(patient);
+const patientId = parsedPatient?.user?._id;
+
+if (!patientId) {
+  console.error("Invalid patient data:", parsedPatient);
+  return;
+}
+
+const result = await getAppointmentsForPatient(patientId);
+
         console.log("The data print", result);
         setAppointments(result);
       } catch (err) {
