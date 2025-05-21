@@ -7,7 +7,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 5173,
-    // No need for historyApiFallback
   },
   plugins: [
     react(),
@@ -20,5 +19,11 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
+  base: '/', // Ensure the base URL is set correctly
 }));

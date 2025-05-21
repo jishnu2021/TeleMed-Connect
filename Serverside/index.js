@@ -171,19 +171,22 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res, next) => {
     // Check if the request is for the video call route
     if (req.path.startsWith('/video/')) {
-      // Let the React router handle it
+      console.log('Handling video route:', req.path);
       res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
+    } else if (req.path.startsWith('/api/')) {
+      next(); // Let the API routes handle it
     } else {
-      // For all other routes, check if it's an API route
-      if (req.path.startsWith('/api/')) {
-        next(); // Let the API routes handle it
-      } else {
-        // For all other routes, serve the React app
-        res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
-      }
+      // For all other routes, serve the React app
+      res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
     }
   });
 }
+
+// Add a specific route for video calls
+app.get('/video/:roomId', (req, res) => {
+  console.log('Video route accessed:', req.params.roomId);
+  res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
+});
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
