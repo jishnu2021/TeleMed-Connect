@@ -34,7 +34,7 @@ app.use(cors({
     
 
 app.use(express.json());
-app.use('/', Router);
+app.use('/api', Router);
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -167,26 +167,12 @@ if (process.env.NODE_ENV === 'production') {
   // Serve static files from the dist directory
   app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
   
-  // Handle all routes for the React app
-  app.get('*', (req, res, next) => {
-    // Check if the request is for the video call route
-    if (req.path.startsWith('/video/')) {
-      console.log('Handling video route:', req.path);
-      res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
-    } else if (req.path.startsWith('/api/')) {
-      next(); // Let the API routes handle it
-    } else {
-      // For all other routes, serve the React app
-      res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
-    }
+  // Handle all other routes
+  app.get('*', (req, res) => {
+    console.log('Serving index.html for route:', req.path);
+    res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
   });
 }
-
-// Add a specific route for video calls
-app.get('/video/:roomId', (req, res) => {
-  console.log('Video route accessed:', req.params.roomId);
-  res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
-});
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
