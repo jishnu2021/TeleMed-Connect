@@ -114,7 +114,7 @@ export default function GetPersonalized() {
         // Making a POST request to the backend API
         console.log("The symptoms " , symptoms)
         
-        const response = await axios.post('http://127.0.0.1:5000/predict', {
+        const response = await axios.post('https://telemed-connect-flaskbackend.onrender.com/predict', {
           symptoms:["itching"]
         });
         console.log("The data is " , response)

@@ -119,9 +119,19 @@ const VideoConsultationForm = () => {
         
         // Connect to signaling server
         // Use dynamic socket URL based on environment
-        const socketUrl = import.meta.env.VITE_SOCKET_SERVER || window.location.origin;
+        const socketUrl = import.meta.env.VITE_SOCKET_SERVER || 
+          (window.location.protocol === 'https:' 
+            ? 'https://telemed-connect.onrender.com'
+            : 'http://localhost:5000');
+            
         console.log('Connecting to socket server:', socketUrl);
-        socket = io(socketUrl);
+        socket = io(socketUrl, {
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 20000
+        });
         
         // Handle socket connection events
         socket.on('connect', () => {

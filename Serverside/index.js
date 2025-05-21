@@ -15,19 +15,22 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : [
       'http://localhost:5173', 
       'http://localhost:3000',
-      'https://telemed-connect.onrender.com', 
+      'https://telemed-connect.onrender.com',
+      'https://telemed-connect-ai-care.onrender.com'
     ];
 
-    app.use(cors({
-      origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true
-    }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
     
 
 app.use(express.json());
@@ -38,9 +41,11 @@ const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ['GET', 'POST'],
-    credentials: true
+    credentials: true,
+    transports: ['websocket', 'polling']
   },
-  pingTimeout: 60000
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 const rooms = {};
