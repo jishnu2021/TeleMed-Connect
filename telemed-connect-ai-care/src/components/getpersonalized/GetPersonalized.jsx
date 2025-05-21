@@ -110,55 +110,95 @@ export default function GetPersonalized() {
     setLoading(true);
 
     try {
+      // Validate input
+      if (!symptoms.trim()) {
+        throw new Error('Please enter your symptoms');
+      }
+
+      // Format symptoms properly
+      const symptomsList = symptoms
+        .split(',')
+        .map(s => s.trim().toLowerCase().replace(/\s+/g, '_'))
+        .filter(s => s);
+
+      if (symptomsList.length === 0) {
+        throw new Error('Please enter valid symptoms');
+      }
+
+      console.log('Sending symptoms:', symptomsList); // Debug log
+
       const response = await axios.post('https://telemed-connect-flaskbackend.onrender.com/predict', {
-        symptoms: symptoms.split(',').map(s => s.trim())
+        symptoms: symptomsList
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
+
+      console.log('Response:', response.data); // Debug log
+
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
 
       const { disease: predictedDisease, description, precautions, medications, diet, workout } = response.data;
       
-      if (predictedDisease) {
-        setRecommendations({
-          title: predictedDisease,
-          description: description,
-          precautions: precautions,
-          medications: medications,
-          diet: diet,
-          workout: workout
-        });
-
-        // Generate prescription data with detailed medication information
-        setPrescriptionData({
-          id: generatePrescriptionId(),
-          date: getCurrentDate(),
-          patientName: patientName,
-          patientAge: patientAge,
-          diagnosis: predictedDisease,
-          symptoms: symptoms,
-          medications: medications.map(med => ({
-            name: med.name,
-            dosage: med.dosage,
-            frequency: med.frequency,
-            duration: med.duration,
-            instructions: med.instructions
-          })),
-          followUp: "2 weeks",
-          additionalNotes: generateAdditionalNotes(predictedDisease, symptoms)
-        });
-      } else {
-        setRecommendations({
-          title: "Condition Not Found",
-          message: "We couldn't find specific recommendations for this condition. Please try a different term or consult your healthcare provider."
-        });
+      if (!predictedDisease) {
+        throw new Error('Could not predict disease from symptoms');
       }
+
+      setRecommendations({
+        title: predictedDisease,
+        description: description || 'No description available',
+        precautions: precautions || [],
+        medications: medications || [],
+        diet: diet || [],
+        workout: workout || []
+      });
+
+      // Generate prescription data with detailed medication information
+      setPrescriptionData({
+        id: generatePrescriptionId(),
+        date: getCurrentDate(),
+        patientName: patientName,
+        patientAge: patientAge,
+        diagnosis: predictedDisease,
+        symptoms: symptoms,
+        medications: (medications || []).map(med => ({
+          name: med.name || 'Unknown',
+          dosage: med.dosage || 'As prescribed',
+          frequency: med.frequency || 'As prescribed',
+          duration: med.duration || 'As prescribed',
+          instructions: med.instructions || 'Follow doctor\'s instructions'
+        })),
+        followUp: "2 weeks",
+        additionalNotes: generateAdditionalNotes(predictedDisease, symptoms)
+      });
+
+      setSubmitted(true);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      let errorMessage = "There was an error while fetching the data. Please try again later.";
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       setRecommendations({
         title: "Error",
-        message: "There was an error while fetching the data. Please try again later."
+        message: errorMessage
       });
+      setSubmitted(true);
     } finally {
       setLoading(false);
-      setSubmitted(true);
     }
   };
 

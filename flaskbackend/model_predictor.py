@@ -187,32 +187,95 @@ def get_disease_details(disease):
 
 app = Flask(__name__)
 CORS(app)
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.get_json()
-    symptoms = data.get('symptoms')
-
-    if isinstance(symptoms, str):
-        # Convert to list if it's a comma-separated string
-        symptoms = [s.strip() for s in symptoms.split(",")]
-
-    if not isinstance(symptoms, list):
-        return jsonify({'error': 'Invalid symptoms format'}), 400
-
     try:
-        disease = predict_disease(symptoms)
-        description, precautions, medications, diet, workout = get_disease_details(disease)
-        return jsonify({
-            'disease': disease,
-            'description': description,
-            'precautions': precautions,
-            'medications': medications,
-            'diet': diet,
-            'workout': workout
-        })
-    except KeyError as e:
-        return jsonify({'error': f'Unknown symptom: {str(e)}'}), 400
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
 
+        symptoms = data.get('symptoms')
+        if not symptoms:
+            return jsonify({'error': 'No symptoms provided'}), 400
+
+        if isinstance(symptoms, str):
+            # Convert to list if it's a comma-separated string
+            symptoms = [s.strip() for s in symptoms.split(",")]
+
+        if not isinstance(symptoms, list):
+            return jsonify({'error': 'Invalid symptoms format. Expected a list of symptoms.'}), 400
+
+        # Validate symptoms against the symptoms dictionary
+        invalid_symptoms = []
+        valid_symptoms = []
+        for symptom in symptoms:
+            symptom = symptom.lower().replace(' ', '_')
+            if symptom in symptoms_dict:
+                valid_symptoms.append(symptom)
+            else:
+                invalid_symptoms.append(symptom)
+
+        if not valid_symptoms:
+            return jsonify({
+                'error': 'No valid symptoms provided',
+                'invalid_symptoms': invalid_symptoms,
+                'valid_symptoms': list(symptoms_dict.keys())[:10]  # Return first 10 valid symptoms as examples
+            }), 400
+
+        if invalid_symptoms:
+            print(f"Warning: Invalid symptoms detected: {invalid_symptoms}")
+
+        try:
+            disease = predict_disease(valid_symptoms)
+            disease_details = get_disease_details(disease)
+            
+            response_data = {
+                'disease': disease,
+                'description': disease_details.get('description', ''),
+                'precautions': disease_details.get('precautions', []),
+                'medications': disease_details.get('medications', []),
+                'diet': disease_details.get('diet', []),
+                'workout': disease_details.get('workout', []),
+                'processed_symptoms': valid_symptoms
+            }
+
+            if invalid_symptoms:
+                response_data['warning'] = f"Some symptoms were ignored: {', '.join(invalid_symptoms)}"
+
+            return jsonify(response_data)
+
+        except KeyError as e:
+            return jsonify({
+                'error': f'Unknown symptom: {str(e)}',
+                'valid_symptoms': list(symptoms_dict.keys())[:10]
+            }), 400
+        except Exception as e:
+            return jsonify({
+                'error': f'Prediction error: {str(e)}',
+                'details': 'An error occurred while processing the symptoms'
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            'error': f'Server error: {str(e)}',
+            'details': 'An unexpected error occurred'
+        }), 500
+
+# Add a health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'available_symptoms': list(symptoms_dict.keys())[:10]  # Return first 10 symptoms as examples
+    }), 200
+
+# Add a symptoms list endpoint
+@app.route('/symptoms', methods=['GET'])
+def get_symptoms():
+    return jsonify({
+        'symptoms': list(symptoms_dict.keys())
+    }), 200
 
 if __name__ == '__main__':
     PORT = int(os.environ.get("PORT", 5000))
