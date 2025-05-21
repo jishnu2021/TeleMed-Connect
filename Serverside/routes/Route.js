@@ -22,7 +22,7 @@ const  { getAllSpeciality } = require('../Controllers/DoctorFixed.js');
 // Get message history for a specific appointment
 
 route.get('/getallspeciality', getAllSpeciality); // Get all doctors by specialty
-route.get('/:appointmentId', messageController.getMessages);
+
 
 // Send a new message
 route.post('/', messageController.sendMessage);
@@ -40,7 +40,9 @@ route.get('/search', messageController.searchMessages);
 route.get('/latest', messageController.getLatestMessages);
 
 // Delete messages for an appointment (Admin or system use only)
+
 route.delete('/:appointmentId', messageController.deleteMessages);
+route.get('/:appointmentId', messageController.getMessages);
 
 
 // const AppointmentModel = require('../Models/AppointmentModel');
