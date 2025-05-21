@@ -107,88 +107,97 @@ export default function GetPersonalized() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Simulate AI processing delay (remove this in production)
-    setTimeout(async () => {
-      try {
-        // Making a POST request to the backend API
-        console.log("The symptoms " , symptoms)
-        
-        const response = await axios.post('https://telemed-connect-flaskbackend.onrender.com/predict', {
-          symptoms:["itching"]
-        });
-        console.log("The data is " , response)
-        // Get the predicted disease and recommendations
-        const { disease: predictedDisease, description, precautions, medications, diet, workout } = response.data;
-        
-        if (predictedDisease) {
-          setRecommendations({
-            title: predictedDisease,
-            description: description,
-            precautions: precautions,
-            medications: medications,
-            diet: diet,
-            workout: workout
-          });
+    try {
+      const response = await axios.post('https://telemed-connect-flaskbackend.onrender.com/predict', {
+        symptoms: symptoms.split(',').map(s => s.trim())
+      });
 
-          // Generate prescription data
-          setPrescriptionData({
-            id: generatePrescriptionId(),
-            date: getCurrentDate(),
-            patientName: patientName,
-            patientAge: patientAge,
-            diagnosis: predictedDisease,
-            symptoms: symptoms,
-            medications: medications,
-            followUp: "2 weeks",
-            additionalNotes: generateAdditionalNotes(predictedDisease, symptoms)
-          });
-        } else {
-          setRecommendations({
-            title: "Condition Not Found",
-            message: "We couldn't find specific recommendations for this condition. Please try a different term or consult your healthcare provider."
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      const { disease: predictedDisease, description, precautions, medications, diet, workout } = response.data;
+      
+      if (predictedDisease) {
         setRecommendations({
-          title: "Error",
-          message: "There was an error while fetching the data. Please try again later."
+          title: predictedDisease,
+          description: description,
+          precautions: precautions,
+          medications: medications,
+          diet: diet,
+          workout: workout
+        });
+
+        // Generate prescription data with detailed medication information
+        setPrescriptionData({
+          id: generatePrescriptionId(),
+          date: getCurrentDate(),
+          patientName: patientName,
+          patientAge: patientAge,
+          diagnosis: predictedDisease,
+          symptoms: symptoms,
+          medications: medications.map(med => ({
+            name: med.name,
+            dosage: med.dosage,
+            frequency: med.frequency,
+            duration: med.duration,
+            instructions: med.instructions
+          })),
+          followUp: "2 weeks",
+          additionalNotes: generateAdditionalNotes(predictedDisease, symptoms)
+        });
+      } else {
+        setRecommendations({
+          title: "Condition Not Found",
+          message: "We couldn't find specific recommendations for this condition. Please try a different term or consult your healthcare provider."
         });
       }
-
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setRecommendations({
+        title: "Error",
+        message: "There was an error while fetching the data. Please try again later."
+      });
+    } finally {
+      setLoading(false);
       setSubmitted(true);
-    }, 1500);
+    }
   };
 
-  
   const generateAdditionalNotes = (disease, symptoms) => {
-    // Here you would implement more advanced AI logic to generate specific notes
-    // This is a simple implementation for demonstration
     const symptomsLower = symptoms.toLowerCase();
+    let notes = [];
     
-    if (disease === "hypertension") {
-      if (symptomsLower.includes("headache") || symptomsLower.includes("dizzy")) {
-        return "Monitor blood pressure more frequently. If dizziness persists, contact your healthcare provider immediately.";
-      }
-      return "Maintain a low sodium diet. Record daily blood pressure readings.";
+    // Disease-specific notes
+    switch(disease.toLowerCase()) {
+      case 'hypertension':
+        notes.push("Monitor blood pressure daily");
+        notes.push("Maintain a low sodium diet");
+        if (symptomsLower.includes("headache") || symptomsLower.includes("dizzy")) {
+          notes.push("If dizziness persists, contact healthcare provider immediately");
+        }
+        break;
+      case 'diabetes':
+        notes.push("Monitor blood glucose levels regularly");
+        notes.push("Follow prescribed diet plan");
+        if (symptomsLower.includes("thirst") || symptomsLower.includes("urination")) {
+          notes.push("Ensure adequate hydration");
+        }
+        break;
+      case 'fungal infection':
+        notes.push("Keep affected areas clean and dry");
+        notes.push("Complete the full course of medication");
+        notes.push("Avoid sharing personal items");
+        break;
+      default:
+        notes.push("Follow lifestyle recommendations");
+        notes.push("Schedule follow-up appointment as directed");
     }
     
-    if (disease === "diabetes") {
-      if (symptomsLower.includes("thirst") || symptomsLower.includes("urination")) {
-        return "Monitor blood glucose levels more frequently. Ensure adequate hydration.";
-      }
-      return "Monitor blood glucose levels regularly. Follow a balanced diet plan.";
-    }
+    // General notes
+    notes.push("Report any adverse reactions to medications");
+    notes.push("Keep all follow-up appointments");
+    notes.push("Maintain a healthy lifestyle");
     
-    if (disease === "asthma") {
-      if (symptomsLower.includes("cough") || symptomsLower.includes("wheez")) {
-        return "Use rescue inhaler as needed. Avoid known triggers. If symptoms worsen, seek immediate medical attention.";
-      }
-      return "Maintain your asthma action plan. Avoid known triggers.";
-    }
-    
-    return "Follow lifestyle recommendations. Schedule follow-up appointment as directed.";
+    return notes.join(". ");
   };
 
   const handleReset = () => {
@@ -208,6 +217,83 @@ export default function GetPersonalized() {
   const handlePrint = () => {
     window.print();
   };
+
+  // Add this new component for displaying medication details
+  const MedicationDetails = ({ medication }) => (
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
+      <h4 className="font-semibold text-lg text-indigo-700 mb-2">{medication.name}</h4>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <span className="font-medium">Dosage:</span> {medication.dosage}
+        </div>
+        <div>
+          <span className="font-medium">Frequency:</span> {medication.frequency}
+        </div>
+        <div>
+          <span className="font-medium">Duration:</span> {medication.duration}
+        </div>
+        <div className="col-span-2">
+          <span className="font-medium">Instructions:</span> {medication.instructions}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the prescription display section
+  const PrescriptionDisplay = () => (
+    <div className="bg-white rounded-xl shadow-lg p-8 mt-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-indigo-800">Medical Prescription</h2>
+        <div className="flex space-x-4">
+          <button
+            onClick={handlePrint}
+            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            <Printer className="mr-2" size={18} />
+            Print
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <div>
+          <p className="text-gray-600">Prescription ID: {prescriptionData.id}</p>
+          <p className="text-gray-600">Date: {prescriptionData.date}</p>
+        </div>
+        <div>
+          <p className="text-gray-600">Patient: {prescriptionData.patientName}</p>
+          <p className="text-gray-600">Age: {prescriptionData.patientAge}</p>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-indigo-700 mb-2">Diagnosis</h3>
+        <p className="text-gray-700">{prescriptionData.diagnosis}</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-indigo-700 mb-2">Medications</h3>
+        {prescriptionData.medications.map((medication, index) => (
+          <MedicationDetails key={index} medication={medication} />
+        ))}
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-indigo-700 mb-2">Additional Notes</h3>
+        <p className="text-gray-700">{prescriptionData.additionalNotes}</p>
+      </div>
+
+      <div className="border-t pt-4">
+        <p className="text-gray-600">Follow-up: {prescriptionData.followUp}</p>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -359,123 +445,7 @@ export default function GetPersonalized() {
         ) : (
           <>
             {showPrescription && prescriptionData ? (
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-indigo-600 p-6 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">Digital Prescription</h2>
-                    <p className="text-indigo-100 mt-1">TeleMed-Connect</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handlePrint}
-                      className="bg-white text-indigo-600 hover:bg-indigo-50 font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center"
-                    >
-                      <Printer size={18} className="mr-2" />
-                      Print
-                    </button>
-                    <button
-                      onClick={handleTogglePrescription}
-                      className="bg-indigo-500 hover:bg-indigo-400 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
-                    >
-                      Back to Recommendations
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <div className="border-b pb-4 mb-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-bold text-gray-800">TeleMed-Connect</h3>
-                      <div className="text-right">
-                        <p className="text-gray-600">Prescription #: {prescriptionData.id}</p>
-                        <p className="text-gray-600">Date: {prescriptionData.date}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Patient Information</h4>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p><span className="font-medium">Name:</span> {prescriptionData.patientName}</p>
-                        <p><span className="font-medium">Age:</span> {prescriptionData.patientAge} years</p>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Diagnosis</h4>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p><span className="font-medium">Primary:</span> {prescriptionData.diagnosis}</p>
-                        <p><span className="font-medium">Symptoms:</span> {prescriptionData.symptoms}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-700 mb-2">Medication</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="text-left">
-                            <th className="pb-2">Medication</th>
-                            <th className="pb-2">Dosage</th>
-                            <th className="pb-2">Frequency</th>
-                            <th className="pb-2">Duration</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {prescriptionData.medications.map((med, index) => (
-                            <tr key={index} className={index % 2 === 0 ? "bg-white" : ""}>
-                              <td className="py-2 pr-2">{med.name}</td>
-                              <td className="py-2 pr-2">{med.dosage}</td>
-                              <td className="py-2 pr-2">{med.frequency}</td>
-                              <td className="py-2">{med.duration}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-700 mb-2">Instructions</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <ul className="list-disc pl-5 space-y-1">
-                        {prescriptionData.medications.map((med, index) => (
-                          <li key={index}><span className="font-medium">{med.name}:</span> {med.instructions}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-700 mb-2">Additional Notes</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p>{prescriptionData.additionalNotes}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Follow-up</h4>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p>Schedule follow-up visit in {prescriptionData.followUp}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Healthcare Provider</h4>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p><span className="font-medium">TeleMed-Connect</span></p>
-                        <p>AI-Assisted Healthcare</p>
-                        <p>ID: TMCAI-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                    <p className="text-yellow-800">This is an AI-generated prescription for informational purposes only. All medication recommendations must be reviewed and approved by a licensed healthcare provider before use.</p>
-                  </div>
-                </div>
-              </div>
+              <PrescriptionDisplay />
             ) : (
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="bg-indigo-600 p-6">

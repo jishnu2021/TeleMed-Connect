@@ -59,14 +59,131 @@ def predict_disease(patient_symptoms):
 
 # Example helper function to get details for a disease
 def get_disease_details(disease):
-    # These can be replaced with your actual dataset or database queries
-    # This is an example of returning static data for demonstration purposes.
-    description = "Detailed description of the disease."
-    precautions = ["Precaution 1", "Precaution 2", "Precaution 3"]
-    medications = ["Medication 1", "Medication 2"]
-    diet = ["Diet plan 1", "Diet plan 2"]
-    workout = ["Workout 1", "Workout 2"]
-    return description, precautions, medications, diet, workout
+    # Comprehensive disease details with specific medication information
+    disease_details = {
+        'Fungal infection': {
+            'description': 'A fungal infection is a skin disease caused by a fungus.',
+            'precautions': [
+                'Keep affected areas clean and dry',
+                'Avoid sharing personal items',
+                'Wear breathable clothing',
+                'Use antifungal powder in shoes'
+            ],
+            'medications': [
+                {
+                    'name': 'Clotrimazole',
+                    'dosage': '1% cream',
+                    'frequency': 'Apply twice daily',
+                    'duration': '2-4 weeks',
+                    'instructions': 'Apply to affected area and surrounding skin'
+                },
+                {
+                    'name': 'Terbinafine',
+                    'dosage': '250mg tablet',
+                    'frequency': 'Once daily',
+                    'duration': '2-4 weeks',
+                    'instructions': 'Take with food'
+                }
+            ],
+            'diet': [
+                'Avoid sugary foods',
+                'Include probiotics in diet',
+                'Stay hydrated'
+            ],
+            'workout': [
+                'Light exercise recommended',
+                'Avoid excessive sweating'
+            ]
+        },
+        'Hypertension': {
+            'description': 'High blood pressure is a common condition that affects the body\'s arteries.',
+            'precautions': [
+                'Monitor blood pressure regularly',
+                'Reduce sodium intake',
+                'Maintain healthy weight',
+                'Limit alcohol consumption'
+            ],
+            'medications': [
+                {
+                    'name': 'Lisinopril',
+                    'dosage': '10mg',
+                    'frequency': 'Once daily',
+                    'duration': '30 days',
+                    'instructions': 'Take in the morning with or without food'
+                },
+                {
+                    'name': 'Amlodipine',
+                    'dosage': '5mg',
+                    'frequency': 'Once daily',
+                    'duration': '30 days',
+                    'instructions': 'Take at the same time each day'
+                }
+            ],
+            'diet': [
+                'DASH diet recommended',
+                'Low sodium diet',
+                'Rich in fruits and vegetables'
+            ],
+            'workout': [
+                'Regular aerobic exercise',
+                '30 minutes daily walking',
+                'Avoid heavy lifting'
+            ]
+        },
+        'Diabetes': {
+            'description': 'Diabetes is a chronic condition that affects how your body metabolizes sugar.',
+            'precautions': [
+                'Monitor blood sugar regularly',
+                'Maintain healthy diet',
+                'Regular exercise',
+                'Foot care'
+            ],
+            'medications': [
+                {
+                    'name': 'Metformin',
+                    'dosage': '500mg',
+                    'frequency': 'Twice daily',
+                    'duration': '30 days',
+                    'instructions': 'Take with meals'
+                },
+                {
+                    'name': 'Glipizide',
+                    'dosage': '5mg',
+                    'frequency': 'Once daily',
+                    'duration': '30 days',
+                    'instructions': 'Take 30 minutes before breakfast'
+                }
+            ],
+            'diet': [
+                'Low glycemic index foods',
+                'Regular meal timing',
+                'Carbohydrate counting'
+            ],
+            'workout': [
+                'Regular physical activity',
+                'Blood sugar monitoring during exercise',
+                'Stay hydrated'
+            ]
+        }
+    }
+    
+    # Return default values if disease not found
+    if disease not in disease_details:
+        return {
+            'description': 'Detailed information not available.',
+            'precautions': ['Consult your healthcare provider'],
+            'medications': [{
+                'name': 'Consult doctor',
+                'dosage': 'As prescribed',
+                'frequency': 'As prescribed',
+                'duration': 'As prescribed',
+                'instructions': 'Follow doctor\'s instructions'
+            }],
+            'diet': ['Consult nutritionist'],
+            'workout': ['Consult healthcare provider']
+        }
+    
+    return disease_details[disease]
 
 app = Flask(__name__)
 CORS(app)

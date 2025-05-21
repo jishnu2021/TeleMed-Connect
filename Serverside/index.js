@@ -15,37 +15,32 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : [
       'http://localhost:5173', 
       'http://localhost:3000',
-      'https://telemed-connect.onrender.com',
-      'https://telemed-connect-ai-care.onrender.com'
+      'https://telemed-connect.onrender.com', 
     ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+    app.use(cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true
+    }));
     
 
 app.use(express.json());
-app.use('/api', Router);
+app.use('/', Router);
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ['GET', 'POST'],
-    credentials: true,
-    transports: ['websocket', 'polling']
+    credentials: true
   },
-  pingTimeout: 60000,
-  pingInterval: 25000
+  pingTimeout: 60000
 });
 
 const rooms = {};
@@ -164,14 +159,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Serve static files (production)
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the dist directory
   app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
-  
-  // Handle all other routes
-  app.get('*', (req, res) => {
-    console.log('Serving index.html for route:', req.path);
-    res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
-  });
+  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html')));
 }
 
 // Connect to MongoDB and start server
