@@ -164,8 +164,25 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Serve static files (production)
 if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the dist directory
   app.use(express.static(path.join(__dirname, '../telemed-connect-ai-care/dist')));
-  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html')));
+  
+  // Handle all routes for the React app
+  app.get('*', (req, res, next) => {
+    // Check if the request is for the video call route
+    if (req.path.startsWith('/video/')) {
+      // Let the React router handle it
+      res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
+    } else {
+      // For all other routes, check if it's an API route
+      if (req.path.startsWith('/api/')) {
+        next(); // Let the API routes handle it
+      } else {
+        // For all other routes, serve the React app
+        res.sendFile(path.join(__dirname, '../telemed-connect-ai-care/dist/index.html'));
+      }
+    }
+  });
 }
 
 // Connect to MongoDB and start server

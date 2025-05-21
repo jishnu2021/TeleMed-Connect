@@ -427,10 +427,14 @@ const Doctors = () => {
                   <p className="text-lg text-gray-700 mb-8">
                     Connect with board-certified doctors online for consultations, diagnoses, and treatment plans.
                   </p>
+                  <Button size="lg" className="bg-medblue hover:bg-medblue-dark">
+                  <Link to="/getpersonalized">Get Personalized Recommendations</Link>
+                </Button>
                 </div>
+                
               </div>
             </section>
-            
+
             <section className="py-12">
               <div className="container px-4 mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
@@ -475,17 +479,7 @@ const Doctors = () => {
               </div>
             </section>
             
-            <section className="py-12 bg-gray-50">
-              <div className="container px-4 mx-auto text-center">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Need Help Finding the Right Doctor?</h2>
-                <p className="text-gray-600 max-w-2xl mx-auto mb-8">
-                  Our medical concierge service can match you with the perfect specialist based on your symptoms and medical history.
-                </p>
-                <Button size="lg" className="bg-medblue hover:bg-medblue-dark">
-                  <Link to="/getpersonalized">Get Personalized Recommendations</Link>
-                </Button>
-              </div>
-            </section>
+           
           </>
         )}
       </main>

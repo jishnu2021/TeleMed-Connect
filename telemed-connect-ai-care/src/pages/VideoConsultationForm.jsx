@@ -130,7 +130,34 @@ const VideoConsultationForm = () => {
           reconnection: true,
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
-          timeout: 20000
+          timeout: 20000,
+          path: '/socket.io',
+          forceNew: true
+        });
+
+        // Add error handling for socket connection
+        socket.on('connect_error', (error) => {
+          console.error('Socket connection error:', error);
+          setConnectionStatus('error');
+          // Try to reconnect with polling if websocket fails
+          if (socket.io.opts.transports[0] === 'websocket') {
+            console.log('Falling back to polling transport...');
+            socket.io.opts.transports = ['polling', 'websocket'];
+          }
+        });
+
+        socket.on('error', (error) => {
+          console.error('Socket error:', error);
+          setConnectionStatus('error');
+        });
+
+        socket.on('reconnect_attempt', (attemptNumber) => {
+          console.log('Reconnection attempt:', attemptNumber);
+        });
+
+        socket.on('reconnect_failed', () => {
+          console.error('Failed to reconnect');
+          setConnectionStatus('error');
         });
         
         // Handle socket connection events
@@ -140,12 +167,6 @@ const VideoConsultationForm = () => {
           socket.emit('join', roomId);
         });
         
-        socket.on('connect_error', (error) => {
-          console.error('Socket connection error:', error);
-          setConnectionStatus('error');
-        });
-        
-        // Room events
         socket.on('room-created', () => {
           console.log('You created the room. Waiting for others to join.');
           setConnectionStatus('waiting');
